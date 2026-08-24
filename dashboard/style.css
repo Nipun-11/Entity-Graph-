@@ -630,6 +630,16 @@ html, body {
     color: var(--text-primary);
 }
 
+.control-btn-wide {
+    width: auto;
+    min-width: 76px;
+    padding: 0 9px;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+
 /* ---------- Right Detail Panel ---------- */
 .detail-panel {
     width: var(--detail-width);
@@ -899,12 +909,8 @@ html, body {
 
 .link-line {
     fill: none;
-    stroke-opacity: 0.4;
-    transition: stroke-opacity 0.2s ease;
-}
-
-.link-line:hover {
-    stroke-opacity: 0.8;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
 }
 
 .link-line.same-actor {

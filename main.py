@@ -128,7 +128,8 @@ def _serve_dashboard(engine, trav, output_path):
 
     import json
 
-    app = Flask(__name__, static_folder="dashboard")
+    dashboard_dir = Path(__file__).parent / "dashboard"
+    app = Flask(__name__)
     CORS(app)
 
     # Load the export data
@@ -137,11 +138,11 @@ def _serve_dashboard(engine, trav, output_path):
 
     @app.route("/")
     def index():
-        return send_from_directory("dashboard", "index.html")
+        return send_from_directory(dashboard_dir, "index.html")
 
     @app.route("/<path:filename>")
     def static_files(filename):
-        return send_from_directory("dashboard", filename)
+        return send_from_directory(dashboard_dir, filename)
 
     @app.route("/api/graph")
     def api_graph():
@@ -199,7 +200,7 @@ def _serve_dashboard(engine, trav, output_path):
         result = []
         for i, comm in enumerate(communities[:50]):
             members = []
-            for eid in list(comm)[:20]:
+            for eid in sorted(comm):
                 entity = engine.get_entity(eid)
                 if entity:
                     members.append({
@@ -219,9 +220,10 @@ def _serve_dashboard(engine, trav, output_path):
         limit = int(request.args.get("limit", 50))
         return jsonify(export_data["pairwise_scores"][:limit])
 
-    print("\n[*] Dashboard starting at http://localhost:5000")
+    port = int(os.environ.get("DASHBOARD_PORT", "5000"))
+    print(f"\n[*] Dashboard starting at http://localhost:{port}")
     print("    Press Ctrl+C to stop.\n")
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="127.0.0.1", port=port, debug=False)
 
 
 # ---------------------------------------------------------------------------
@@ -236,15 +238,23 @@ def main():
                         help="Launch dashboard at localhost:5000 after pipeline")
     parser.add_argument("--skip-validation", action="store_true",
                         help="Skip validation checks")
+    parser.add_argument("--train-ml", action="store_true",
+                        help="Train supervised ML link prediction model (RandomForest/XGBoost)")
     parser.add_argument("--max-pairs", type=int, default=500,
                         help="Max pairwise scores to compute (default: 500)")
     args = parser.parse_args()
 
-    run_pipeline(
+    engine, trav = run_pipeline(
         serve=args.serve,
         skip_validation=args.skip_validation,
         max_pairs=args.max_pairs,
     )
+
+    if args.train_ml:
+        from model_trainer import GraphFeatureExtractor, build_training_dataset, train_and_evaluate
+        extractor = GraphFeatureExtractor(engine, trav)
+        df, y, feature_cols = build_training_dataset(engine, trav, extractor)
+        train_and_evaluate(df, y, feature_cols)
 
 
 if __name__ == "__main__":

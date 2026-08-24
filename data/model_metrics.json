@@ -1,0 +1,85 @@
+{
+  "model_type": "XGBoostClassifier",
+  "evaluation_summary": {
+    "test_roc_auc": 0.9765,
+    "test_pr_auc": 0.9787,
+    "test_f1_score": 0.9109,
+    "test_precision": 0.9447,
+    "test_recall": 0.888,
+    "test_accuracy": 0.918,
+    "cv_roc_auc_mean": 0.9648,
+    "cv_f1_mean": 0.8938
+  },
+  "feature_importance_ranking": [
+    {
+      "feature": "path_confidence",
+      "importance": 0.2546
+    },
+    {
+      "feature": "jaccard_coefficient",
+      "importance": 0.1826
+    },
+    {
+      "feature": "same_community",
+      "importance": 0.132
+    },
+    {
+      "feature": "graph_link_strength",
+      "importance": 0.0755
+    },
+    {
+      "feature": "market_overlap_count",
+      "importance": 0.0571
+    },
+    {
+      "feature": "common_neighbors_count",
+      "importance": 0.0514
+    },
+    {
+      "feature": "preferential_attachment",
+      "importance": 0.0503
+    },
+    {
+      "feature": "resource_allocation_index",
+      "importance": 0.0386
+    },
+    {
+      "feature": "adamic_adar_index",
+      "importance": 0.0365
+    },
+    {
+      "feature": "market_jaccard",
+      "importance": 0.0319
+    },
+    {
+      "feature": "degree_v",
+      "importance": 0.0283
+    },
+    {
+      "feature": "degree_u",
+      "importance": 0.0251
+    },
+    {
+      "feature": "degree_ratio",
+      "importance": 0.0204
+    },
+    {
+      "feature": "degree_diff",
+      "importance": 0.0158
+    },
+    {
+      "feature": "same_pgp_key",
+      "importance": 0.0
+    },
+    {
+      "feature": "same_wallet",
+      "importance": 0.0
+    }
+  ],
+  "dataset_info": {
+    "total_training_samples": 2500,
+    "features_count": 16,
+    "positive_links": 1250,
+    "negative_links": 1250
+  }
+}

@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/dashboard/style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <!-- Top Navigation -->
@@ -106,6 +106,7 @@
                 <div class="legend-item"><span class="legend-line dashed" style="background: #f43f5e"></span> Multi-Hop Path</div>
             </div>
             <div class="graph-controls">
+                <button class="control-btn control-btn-wide" id="btn-toggle-links" title="Show or hide relationship links">Links: Off</button>
                 <button class="control-btn" id="btn-zoom-in" title="Zoom In">+</button>
                 <button class="control-btn" id="btn-zoom-out" title="Zoom Out">−</button>
                 <button class="control-btn" id="btn-fit" title="Fit to View">◻</button>
@@ -138,6 +139,6 @@
     <div class="toast-container" id="toast-container"></div>
 
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="/dashboard/app.js"></script>
+    <script src="/app.js"></script>
 </body>
 </html>

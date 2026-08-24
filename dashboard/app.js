@@ -42,6 +42,7 @@ let zoom;
 let selectedEntityId = null;
 let activeCommunityId = null;
 let activePathEntities = null;
+let showAllLinks = false;
 
 // ---------------------------------------------------------------------------
 // Initialization
@@ -202,7 +203,7 @@ function renderGraph(data) {
         .attr('class', 'link-line')
         .attr('stroke', d => EDGE_COLORS[d.relation_type] || '#4a5080')
         .attr('stroke-width', d => Math.max(1, (d.confidence || 0.5) * 2.2))
-        .attr('stroke-opacity', 0.55);
+        .attr('opacity', 0);
 
     // Nodes
     const nodes = nodeGroup.selectAll('.node-circle')
@@ -234,9 +235,16 @@ function renderGraph(data) {
             .on('end', dragEnded)
         );
 
-    // Labels for prominent nodes (high degree or selected)
+    // A graph with 500 labels is unreadable. Keep only the most connected
+    // actors labeled; the rest remain searchable and reveal their details on click.
+    const prominentNodeIds = new Set(
+        [...data.nodes]
+            .sort((a, b) => (b.degree || 0) - (a.degree || 0))
+            .slice(0, 30)
+            .map(node => node.id)
+    );
     const labels = labelGroup.selectAll('.node-label')
-        .data(data.nodes.filter(n => (n.degree || 0) >= 6 || (n.active_marketplaces && n.active_marketplaces.length >= 3)), d => d.id)
+        .data(data.nodes.filter(n => prominentNodeIds.has(n.id)), d => d.id)
         .join('text')
         .attr('class', 'node-label')
         .text(d => d.handle || d.id)
@@ -248,11 +256,13 @@ function renderGraph(data) {
 
     // Physics Simulation
     simulation = d3.forceSimulation(data.nodes)
-        .force('link', d3.forceLink(validEdges).id(d => d.id).distance(55).strength(0.4))
-        .force('charge', d3.forceManyBody().strength(-90).distanceMax(350))
+        .force('link', d3.forceLink(validEdges).id(d => d.id).distance(82).strength(0.22))
+        .force('charge', d3.forceManyBody().strength(-260).distanceMax(520))
         .force('center', d3.forceCenter(width / 2, height / 2))
-        .force('collision', d3.forceCollide().radius(d => 12 + (d.active_marketplaces ? d.active_marketplaces.length : 1) * 1.5))
-        .alphaDecay(0.028)
+        .force('x', d3.forceX(width / 2).strength(0.055))
+        .force('y', d3.forceY(height / 2).strength(0.055))
+        .force('collision', d3.forceCollide().radius(d => 17 + (d.active_marketplaces ? d.active_marketplaces.length : 1) * 2))
+        .alphaDecay(0.018)
         .on('tick', () => {
             links
                 .attr('x1', d => d.source.x)
@@ -268,6 +278,34 @@ function renderGraph(data) {
                 .attr('x', d => d.x)
                 .attr('y', d => d.y);
         });
+
+    // Let the layout settle briefly, then show its complete extent in the viewport.
+    window.setTimeout(() => fitGraphToViewport(450), 1600);
+}
+
+function fitGraphToViewport(duration = 450) {
+    if (!simulation || !fullGraphData.nodes.length) return;
+
+    const container = document.getElementById('graph-container');
+    const width = container.clientWidth || 900;
+    const height = container.clientHeight || 700;
+    const positioned = fullGraphData.nodes.filter(n => Number.isFinite(n.x) && Number.isFinite(n.y));
+    if (!positioned.length) return;
+
+    const minX = d3.min(positioned, n => n.x);
+    const maxX = d3.max(positioned, n => n.x);
+    const minY = d3.min(positioned, n => n.y);
+    const maxY = d3.max(positioned, n => n.y);
+    const graphWidth = Math.max(maxX - minX, 1);
+    const graphHeight = Math.max(maxY - minY, 1);
+    const scale = Math.max(0.12, Math.min(1.25, 0.86 / Math.max(graphWidth / width, graphHeight / height)));
+    const translateX = width / 2 - scale * (minX + maxX) / 2;
+    const translateY = height / 2 - scale * (minY + maxY) / 2;
+
+    svg.transition().duration(duration).call(
+        zoom.transform,
+        d3.zoomIdentity.translate(translateX, translateY).scale(scale)
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -325,7 +363,7 @@ function resetHighlight() {
     if (activeCommunityId !== null || activePathEntities !== null) return;
 
     nodeGroup.selectAll('.node-circle').attr('opacity', 1);
-    linkGroup.selectAll('.link-line').attr('opacity', 0.55);
+    linkGroup.selectAll('.link-line').attr('opacity', showAllLinks ? 0.32 : 0);
     labelGroup.selectAll('.node-label').attr('opacity', 1);
 }
 
@@ -343,7 +381,8 @@ async function selectNode(node) {
         const res = await fetch(`${API_BASE}/api/entity/${encodeURIComponent(node.id)}`);
         if (res.ok) {
             const data = await res.json();
-            renderEntityDetail(data.entity, data.connections);
+            // Preserve community/color metadata attached to the clicked node.
+            renderEntityDetail({ ...node, ...data.entity }, data.connections);
         } else {
             renderEntityDetail(node, []);
         }
@@ -361,6 +400,7 @@ function deselectNode() {
 
     document.getElementById('detail-content').style.display = 'none';
     document.getElementById('detail-empty').style.display = 'flex';
+    resetHighlight();
 }
 
 // ---------------------------------------------------------------------------
@@ -374,7 +414,9 @@ function renderEntityDetail(entity, connections = []) {
 
     document.getElementById('detail-title').textContent = entity.handle || entity.entity_id;
     document.getElementById('detail-subtitle').textContent = entity.entity_id;
-    document.getElementById('detail-type-badge').textContent = `Community #${entity.community ?? 0}`;
+    document.getElementById('detail-type-badge').textContent = entity.community == null
+        ? 'Community unavailable'
+        : `Community #${entity.community + 1}`;
     document.getElementById('detail-type-badge').style.background = entity.color || '#6366f1';
 
     const markets = entity.active_marketplaces || [];
@@ -644,6 +686,15 @@ function initSearch() {
 // ---------------------------------------------------------------------------
 
 function initControls() {
+    const linksButton = document.getElementById('btn-toggle-links');
+    linksButton?.addEventListener('click', () => {
+        showAllLinks = !showAllLinks;
+        linksButton.textContent = `Links: ${showAllLinks ? 'On' : 'Off'}`;
+        if (activeCommunityId === null && activePathEntities === null && selectedEntityId === null) {
+            resetHighlight();
+        }
+    });
+
     document.getElementById('btn-zoom-in')?.addEventListener('click', () => {
         svg.transition().duration(300).call(zoom.scaleBy, 1.3);
     });
@@ -653,7 +704,7 @@ function initControls() {
     });
 
     document.getElementById('btn-fit')?.addEventListener('click', () => {
-        svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
+        fitGraphToViewport();
     });
 
     document.getElementById('btn-reset-view')?.addEventListener('click', () => {
@@ -662,7 +713,7 @@ function initControls() {
         document.querySelectorAll('.cluster-card').forEach(c => c.classList.remove('active'));
         resetHighlight();
         deselectNode();
-        svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
+        fitGraphToViewport();
         showToast('Graph view reset', 'info');
     });
 }

@@ -16,12 +16,28 @@ Dark Web Threat Actor De-anonymization — Entity graph that maps personas acros
 ```bash
 pip install -r requirements.txt
 
-# Run the full pipeline: build graph → validate → export
+# Run the full pipeline: build graph -> validate -> export
 python main.py
 
-# Run with dashboard visualization
+# Train the supervised ML Link Prediction Model (Random Forest / XGBoost with 5-fold CV)
+python model_trainer.py
+# Or via main CLI:
+python main.py --train-ml
+
+# Run with interactive dashboard visualization
 python main.py --serve
 ```
+
+## Machine Learning Link Prediction Model (`model_trainer.py`)
+
+Module 2 includes a **Supervised Graph ML Model** that learns topological and behavioral patterns:
+- **Algorithms**: Random Forest (100 estimators) & XGBoost Classifier
+- **Features Extracted ($d=16$)**: Jaccard Coefficient, Adamic-Adar Index, Resource Allocation Index, Preferential Attachment, Louvain Community Co-membership, Marketplace Overlap, Degree Centralities, and Multi-Hop Path Confidence
+- **Performance**:
+  - **ROC-AUC**: `0.9765` (5-Fold CV: `0.9648`)
+  - **Precision**: `0.9447` | **Recall**: `0.8880` | **F1-Score**: `0.9155`
+  - **PR-AUC**: `0.9787`
+- **Output Artifacts**: `data/link_prediction_model.pkl` & `data/model_metrics.json`
 
 ## Output
 
