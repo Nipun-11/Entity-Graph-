@@ -6,34 +6,50 @@ Dark Web Threat Actor De-anonymization — Entity graph that maps personas acros
 
 1. **Loads** 1,833 anonymized persona records (500 unique handles across 23 marketplaces) from ANON CSV files
 2. **Collapses** same-handle personas into ~500 canonical entity nodes (one per real actor)
-3. **Builds** a NetworkX MultiDiGraph with cross-entity edges (VOUCHED_FOR, CO_OCCURRED_IN_THREAD, TRANSACTED_WITH)
-4. **Traverses** the graph to find indirect connections (2-3 hops) between entities that never directly interacted
+3. **Builds** a NetworkX MultiDiGraph with cross-entity edges (`VOUCHED_FOR`, `CO_OCCURRED_IN_THREAD`, `TRANSACTED_WITH`)
+4. **Traverses** the graph to find indirect connections (2–3 hops) between entities that never directly interacted
 5. **Scores** each connection with `path_confidence` (multiplicative decay) and `graph_link_strength` (path count + best confidence)
-6. **Trains and evaluates** a supervised link-prediction model with reproducible metrics
+6. **Trains and evaluates** a production-champion supervised link-prediction model with strict zero-leakage edge holdout
 
 ## Quick Start
 
 ```bash
 pip install -r requirements.txt
 
-# Run the full graph pipeline and train/evaluate the model
+# Run the full graph pipeline and train/evaluate the champion model
 python main.py --train-ml
 
-# Or train/evaluate the model directly
+# Or train/evaluate the champion model directly
 python model_trainer.py
+
+# Run validation checks
+python validate.py
 ```
 
 ## Machine Learning Link Prediction Model (`model_trainer.py`)
 
-Module 2 includes a **Supervised Graph ML Model** evaluated under a strict **Edge-Holdout Evaluation Protocol** (zero graph feature leakage):
-- **Algorithm**: Random Forest Classifier (100 estimators, max depth 8)
-- **Features Extracted ($d=17$)**: Louvain Community co-membership on $G_{\text{train}}$, Multi-Hop Path Confidence, Graph Link Strength, Preferential Attachment, Shortest Path distance (masked), Adamic-Adar Index, Resource Allocation Index, Degree Disparity, and Darknet Marketplace Jaccard similarity.
-- **Genuine Unseen Link Prediction Performance (20% Edge Hold-Out)**:
-  - **ROC-AUC Score**: `0.6394` (5-Fold Graph-Aware CV: `0.6571` $\pm 0.0173$)
-  - **Precision**: `0.7571` (75.71% of predicted links are true darknet collaborations)
-  - **Specificity**: `0.8847` | **Accuracy**: `0.6220` | **Recall**: `0.3593` | **F1-Score**: `0.4874`
-  - **Average Precision (PR-AUC)**: `0.6719`
-- **Output Artifacts**: `data/link_prediction_model.pkl` & `data/model_metrics.json`
+Module 2 includes a **Production Champion Graph ML Model** evaluated under a strict **Edge-Holdout Evaluation Protocol** (zero graph feature leakage):
+- **Algorithm**: Random Forest Classifier (`n_estimators=100`, `max_depth=6`, `min_samples_split=4`, `min_samples_leaf=2`, `max_features='sqrt'`)
+- **Features Extracted ($d=14$)**: Masked Shortest Path distance, Adamic-Adar Index, Preferential Attachment, Degree metrics ($d_u, d_v, \text{diff}, \text{ratio}$), Resource Allocation Index, Jaccard Coefficient, Common Neighbors, Marketplace overlap and Jaccard similarity, and Cryptographic Key/Wallet matches.
+- **Genuine Unseen Link Prediction Performance (20% Edge Hold-Out, $N=590$ Unseen Test Pairs)**:
+  - **ROC-AUC Score**: `0.6510` (5-Fold Graph-Aware CV: `0.6612` $\pm 0.0134$)
+  - **Average Precision (PR-AUC)**: `0.6871` (5-Fold Graph-Aware CV: `0.6997` $\pm 0.0196$)
+  - **Standard Operating Point ($\tau=0.50$)**:
+    - **Recall**: `46.10%` (136 TP, +10.17% gain over baseline)
+    - **Precision**: `67.66%`
+    - **F1-Score**: `0.5484` (+12.5% relative boost)
+    - **Specificity**: `77.97%` | **Accuracy**: `62.03%` | **Log Loss**: `0.6570`
+  - **Operational Threat Discovery Point ($\tau=0.40$)**:
+    - **Recall**: `66.44%` (196 / 295 TP discovered)
+    - **Precision**: `57.14%`
+    - **F1-Score**: `0.6144`
+- **Output Artifacts**:
+  - Model Artifact: `data/link_prediction_model.pkl`
+  - Metrics JSON: `data/model_metrics.json`
+  - Long-Format Master Results: `data/complete_ml_results.csv`
+  - Tabular Summary: `data/final_model_metrics.csv`
+  - Feature Importances: `data/feature_importance.csv`
+  - Historical Baseline Backup: `data/link_prediction_model_baseline_17feat.pkl` & `data/model_metrics_baseline_17feat.json`
 
 ## Output
 
@@ -76,6 +92,7 @@ G = engine.get_graph()  # Returns networkx.MultiDiGraph
 | `generate_anon_dataset.py` | Generates ANON CSVs from raw Gwern archive |
 | `data/module2_entity_graph_nodes_ANON.csv` | 1,833 persona records (input) |
 | `data/module2_entity_graph_edges_ANON.csv` | 4,156 edges (input) |
+| `data/complete_ml_results.csv` | Master results CSV containing all baseline, champion, ablation & validation data |
 | `data/entity_graph_output.json` | Module output (generated) |
 
 ## Data Note
