@@ -1,0 +1,1647 @@
+{
+  "baseline_summary": {
+    "cols": [
+      "common_neighbors_count",
+      "jaccard_coefficient",
+      "adamic_adar_index",
+      "resource_allocation_index",
+      "preferential_attachment",
+      "degree_u",
+      "degree_v",
+      "degree_ratio",
+      "degree_diff",
+      "shortest_path_length",
+      "path_confidence",
+      "graph_link_strength",
+      "same_community",
+      "market_overlap_count",
+      "market_jaccard",
+      "same_pgp_key",
+      "same_wallet"
+    ],
+    "roc_auc_mean": 0.6571,
+    "roc_auc_std": 0.0173,
+    "pr_auc_mean": 0.6619,
+    "pr_auc_std": 0.0216,
+    "f1_mean": 0.4761,
+    "f1_std": 0.0352,
+    "precision_mean": 0.7368,
+    "precision_std": 0.0209,
+    "recall_mean": 0.3525,
+    "recall_std": 0.0354,
+    "mcc_mean": 0.266,
+    "mcc_std": 0.0323,
+    "accuracy_mean": 0.6136,
+    "top_features": [
+      [
+        "same_community",
+        0.4811
+      ],
+      [
+        "shortest_path_length",
+        0.0687
+      ],
+      [
+        "graph_link_strength",
+        0.067
+      ],
+      [
+        "path_confidence",
+        0.0638
+      ],
+      [
+        "preferential_attachment",
+        0.0469
+      ],
+      [
+        "degree_v",
+        0.0387
+      ],
+      [
+        "degree_ratio",
+        0.0358
+      ],
+      [
+        "market_jaccard",
+        0.0352
+      ]
+    ]
+  },
+  "phase1_experiments": {
+    "A. Baseline (All 17 Features)": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "path_confidence",
+        "graph_link_strength",
+        "same_community",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet"
+      ],
+      "roc_auc_mean": 0.6571,
+      "roc_auc_std": 0.0173,
+      "pr_auc_mean": 0.6619,
+      "pr_auc_std": 0.0216,
+      "f1_mean": 0.4761,
+      "f1_std": 0.0352,
+      "precision_mean": 0.7368,
+      "precision_std": 0.0209,
+      "recall_mean": 0.3525,
+      "recall_std": 0.0354,
+      "mcc_mean": 0.266,
+      "mcc_std": 0.0323,
+      "accuracy_mean": 0.6136,
+      "top_features": [
+        [
+          "same_community",
+          0.4811
+        ],
+        [
+          "shortest_path_length",
+          0.0687
+        ],
+        [
+          "graph_link_strength",
+          0.067
+        ],
+        [
+          "path_confidence",
+          0.0638
+        ],
+        [
+          "preferential_attachment",
+          0.0469
+        ],
+        [
+          "degree_v",
+          0.0387
+        ],
+        [
+          "degree_ratio",
+          0.0358
+        ],
+        [
+          "market_jaccard",
+          0.0352
+        ]
+      ]
+    },
+    "B. Ablation: Remove same_community": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "path_confidence",
+        "graph_link_strength",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet"
+      ],
+      "roc_auc_mean": 0.6523,
+      "roc_auc_std": 0.0106,
+      "pr_auc_mean": 0.6863,
+      "pr_auc_std": 0.0169,
+      "f1_mean": 0.5589,
+      "f1_std": 0.0151,
+      "precision_mean": 0.6688,
+      "precision_std": 0.0104,
+      "recall_mean": 0.4805,
+      "recall_std": 0.0212,
+      "mcc_mean": 0.2527,
+      "mcc_std": 0.0152,
+      "accuracy_mean": 0.6212,
+      "top_features": [
+        [
+          "shortest_path_length",
+          0.1409
+        ],
+        [
+          "graph_link_strength",
+          0.1119
+        ],
+        [
+          "path_confidence",
+          0.1032
+        ],
+        [
+          "preferential_attachment",
+          0.1014
+        ],
+        [
+          "degree_v",
+          0.09
+        ],
+        [
+          "market_jaccard",
+          0.0763
+        ],
+        [
+          "market_overlap_count",
+          0.0743
+        ],
+        [
+          "degree_u",
+          0.0731
+        ]
+      ]
+    },
+    "C. Ablation: Remove graph_link_strength": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "path_confidence",
+        "same_community",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet"
+      ],
+      "roc_auc_mean": 0.6558,
+      "roc_auc_std": 0.0174,
+      "pr_auc_mean": 0.6614,
+      "pr_auc_std": 0.0219,
+      "f1_mean": 0.4752,
+      "f1_std": 0.0355,
+      "precision_mean": 0.7431,
+      "precision_std": 0.0222,
+      "recall_mean": 0.35,
+      "recall_std": 0.0346,
+      "mcc_mean": 0.2703,
+      "mcc_std": 0.0348,
+      "accuracy_mean": 0.6148,
+      "top_features": [
+        [
+          "same_community",
+          0.4815
+        ],
+        [
+          "shortest_path_length",
+          0.085
+        ],
+        [
+          "path_confidence",
+          0.0808
+        ],
+        [
+          "preferential_attachment",
+          0.0505
+        ],
+        [
+          "degree_v",
+          0.0433
+        ],
+        [
+          "market_overlap_count",
+          0.0427
+        ],
+        [
+          "degree_ratio",
+          0.0396
+        ],
+        [
+          "market_jaccard",
+          0.0389
+        ]
+      ]
+    },
+    "D. Ablation: Remove path_confidence": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "graph_link_strength",
+        "same_community",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet"
+      ],
+      "roc_auc_mean": 0.655,
+      "roc_auc_std": 0.0197,
+      "pr_auc_mean": 0.6628,
+      "pr_auc_std": 0.0227,
+      "f1_mean": 0.4678,
+      "f1_std": 0.0295,
+      "precision_mean": 0.7408,
+      "precision_std": 0.0207,
+      "recall_mean": 0.3424,
+      "recall_std": 0.0288,
+      "mcc_mean": 0.2642,
+      "mcc_std": 0.0291,
+      "accuracy_mean": 0.6114,
+      "top_features": [
+        [
+          "same_community",
+          0.4794
+        ],
+        [
+          "graph_link_strength",
+          0.0846
+        ],
+        [
+          "shortest_path_length",
+          0.0839
+        ],
+        [
+          "preferential_attachment",
+          0.0504
+        ],
+        [
+          "degree_v",
+          0.0439
+        ],
+        [
+          "market_overlap_count",
+          0.0435
+        ],
+        [
+          "degree_ratio",
+          0.0403
+        ],
+        [
+          "market_jaccard",
+          0.0386
+        ]
+      ]
+    },
+    "E. Ablation: Remove community + path + link_strength": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet"
+      ],
+      "roc_auc_mean": 0.6531,
+      "roc_auc_std": 0.0109,
+      "pr_auc_mean": 0.6889,
+      "pr_auc_std": 0.0219,
+      "f1_mean": 0.552,
+      "f1_std": 0.0143,
+      "precision_mean": 0.6828,
+      "precision_std": 0.03,
+      "recall_mean": 0.4644,
+      "recall_std": 0.0219,
+      "mcc_mean": 0.261,
+      "mcc_std": 0.0324,
+      "accuracy_mean": 0.6233,
+      "top_features": [
+        [
+          "shortest_path_length",
+          0.1838
+        ],
+        [
+          "preferential_attachment",
+          0.1115
+        ],
+        [
+          "degree_v",
+          0.1024
+        ],
+        [
+          "market_jaccard",
+          0.0954
+        ],
+        [
+          "market_overlap_count",
+          0.0912
+        ],
+        [
+          "degree_u",
+          0.0867
+        ],
+        [
+          "degree_diff",
+          0.0803
+        ],
+        [
+          "degree_ratio",
+          0.0776
+        ]
+      ]
+    },
+    "F1. Baseline + Normalized Topo Similarities": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "path_confidence",
+        "graph_link_strength",
+        "same_community",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet",
+        "cosine_similarity",
+        "sorensen_similarity",
+        "hub_promoted_index",
+        "hub_depressed_index",
+        "degree_diff_norm"
+      ],
+      "roc_auc_mean": 0.6574,
+      "roc_auc_std": 0.0234,
+      "pr_auc_mean": 0.6692,
+      "pr_auc_std": 0.0211,
+      "f1_mean": 0.4858,
+      "f1_std": 0.0401,
+      "precision_mean": 0.7413,
+      "precision_std": 0.0168,
+      "recall_mean": 0.3627,
+      "recall_std": 0.0427,
+      "mcc_mean": 0.2749,
+      "mcc_std": 0.0311,
+      "accuracy_mean": 0.6182,
+      "top_features": [
+        [
+          "same_community",
+          0.4322
+        ],
+        [
+          "graph_link_strength",
+          0.0653
+        ],
+        [
+          "shortest_path_length",
+          0.0648
+        ],
+        [
+          "path_confidence",
+          0.0589
+        ],
+        [
+          "preferential_attachment",
+          0.0461
+        ],
+        [
+          "market_jaccard",
+          0.0382
+        ],
+        [
+          "degree_v",
+          0.0376
+        ],
+        [
+          "market_overlap_count",
+          0.0372
+        ]
+      ]
+    },
+    "F2. Baseline + Relational Triadic Features": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "path_confidence",
+        "graph_link_strength",
+        "same_community",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet",
+        "vouched_common_count",
+        "transacted_common_count",
+        "cooccurred_common_count"
+      ],
+      "roc_auc_mean": 0.6566,
+      "roc_auc_std": 0.019,
+      "pr_auc_mean": 0.67,
+      "pr_auc_std": 0.019,
+      "f1_mean": 0.4878,
+      "f1_std": 0.0319,
+      "precision_mean": 0.7328,
+      "precision_std": 0.0258,
+      "recall_mean": 0.3661,
+      "recall_std": 0.0313,
+      "mcc_mean": 0.269,
+      "mcc_std": 0.0355,
+      "accuracy_mean": 0.6165,
+      "top_features": [
+        [
+          "same_community",
+          0.4287
+        ],
+        [
+          "graph_link_strength",
+          0.0766
+        ],
+        [
+          "shortest_path_length",
+          0.0652
+        ],
+        [
+          "path_confidence",
+          0.0619
+        ],
+        [
+          "preferential_attachment",
+          0.0508
+        ],
+        [
+          "degree_v",
+          0.0445
+        ],
+        [
+          "market_overlap_count",
+          0.0408
+        ],
+        [
+          "market_jaccard",
+          0.0391
+        ]
+      ]
+    },
+    "F3. Baseline + Market Ratio": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "path_confidence",
+        "graph_link_strength",
+        "same_community",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet",
+        "market_overlap_ratio"
+      ],
+      "roc_auc_mean": 0.6577,
+      "roc_auc_std": 0.0205,
+      "pr_auc_mean": 0.6644,
+      "pr_auc_std": 0.0224,
+      "f1_mean": 0.4773,
+      "f1_std": 0.035,
+      "precision_mean": 0.7357,
+      "precision_std": 0.0241,
+      "recall_mean": 0.3542,
+      "recall_std": 0.0362,
+      "mcc_mean": 0.2655,
+      "mcc_std": 0.0328,
+      "accuracy_mean": 0.6136,
+      "top_features": [
+        [
+          "same_community",
+          0.4465
+        ],
+        [
+          "shortest_path_length",
+          0.0684
+        ],
+        [
+          "graph_link_strength",
+          0.0649
+        ],
+        [
+          "path_confidence",
+          0.0645
+        ],
+        [
+          "preferential_attachment",
+          0.048
+        ],
+        [
+          "degree_v",
+          0.0411
+        ],
+        [
+          "market_overlap_count",
+          0.0376
+        ],
+        [
+          "degree_ratio",
+          0.0358
+        ]
+      ]
+    },
+    "F4. Full Extended Candidate Set (26 Features)": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "path_confidence",
+        "graph_link_strength",
+        "same_community",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet",
+        "cosine_similarity",
+        "sorensen_similarity",
+        "hub_promoted_index",
+        "hub_depressed_index",
+        "degree_diff_norm",
+        "vouched_common_count",
+        "transacted_common_count",
+        "cooccurred_common_count",
+        "market_overlap_ratio"
+      ],
+      "roc_auc_mean": 0.657,
+      "roc_auc_std": 0.0187,
+      "pr_auc_mean": 0.6646,
+      "pr_auc_std": 0.0205,
+      "f1_mean": 0.4846,
+      "f1_std": 0.0263,
+      "precision_mean": 0.7465,
+      "precision_std": 0.0193,
+      "recall_mean": 0.3593,
+      "recall_std": 0.0273,
+      "mcc_mean": 0.2775,
+      "mcc_std": 0.0254,
+      "accuracy_mean": 0.6186,
+      "top_features": [
+        [
+          "same_community",
+          0.4674
+        ],
+        [
+          "graph_link_strength",
+          0.066
+        ],
+        [
+          "shortest_path_length",
+          0.0569
+        ],
+        [
+          "path_confidence",
+          0.0489
+        ],
+        [
+          "preferential_attachment",
+          0.0416
+        ],
+        [
+          "degree_v",
+          0.0347
+        ],
+        [
+          "market_overlap_count",
+          0.0331
+        ],
+        [
+          "market_jaccard",
+          0.03
+        ]
+      ]
+    },
+    "+ Single: cosine_similarity": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "path_confidence",
+        "graph_link_strength",
+        "same_community",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet",
+        "cosine_similarity"
+      ],
+      "roc_auc_mean": 0.6568,
+      "roc_auc_std": 0.0208,
+      "pr_auc_mean": 0.6667,
+      "pr_auc_std": 0.0235,
+      "f1_mean": 0.4814,
+      "f1_std": 0.0284,
+      "precision_mean": 0.7392,
+      "precision_std": 0.021,
+      "recall_mean": 0.3576,
+      "recall_std": 0.0298,
+      "mcc_mean": 0.2701,
+      "mcc_std": 0.0265,
+      "accuracy_mean": 0.6157,
+      "top_features": [
+        [
+          "same_community",
+          0.4484
+        ],
+        [
+          "shortest_path_length",
+          0.0694
+        ],
+        [
+          "path_confidence",
+          0.0657
+        ],
+        [
+          "graph_link_strength",
+          0.065
+        ],
+        [
+          "preferential_attachment",
+          0.0483
+        ],
+        [
+          "degree_v",
+          0.0414
+        ],
+        [
+          "market_overlap_count",
+          0.0409
+        ],
+        [
+          "degree_ratio",
+          0.0373
+        ]
+      ]
+    },
+    "+ Single: sorensen_similarity": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "path_confidence",
+        "graph_link_strength",
+        "same_community",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet",
+        "sorensen_similarity"
+      ],
+      "roc_auc_mean": 0.6566,
+      "roc_auc_std": 0.021,
+      "pr_auc_mean": 0.6668,
+      "pr_auc_std": 0.0203,
+      "f1_mean": 0.482,
+      "f1_std": 0.0349,
+      "precision_mean": 0.7389,
+      "precision_std": 0.0243,
+      "recall_mean": 0.3585,
+      "recall_std": 0.0354,
+      "mcc_mean": 0.2707,
+      "mcc_std": 0.0343,
+      "accuracy_mean": 0.6161,
+      "top_features": [
+        [
+          "same_community",
+          0.4488
+        ],
+        [
+          "shortest_path_length",
+          0.0694
+        ],
+        [
+          "path_confidence",
+          0.0662
+        ],
+        [
+          "graph_link_strength",
+          0.0644
+        ],
+        [
+          "preferential_attachment",
+          0.0482
+        ],
+        [
+          "degree_v",
+          0.0414
+        ],
+        [
+          "market_overlap_count",
+          0.0407
+        ],
+        [
+          "degree_ratio",
+          0.0368
+        ]
+      ]
+    },
+    "+ Single: hub_promoted_index": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "path_confidence",
+        "graph_link_strength",
+        "same_community",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet",
+        "hub_promoted_index"
+      ],
+      "roc_auc_mean": 0.6555,
+      "roc_auc_std": 0.0206,
+      "pr_auc_mean": 0.6635,
+      "pr_auc_std": 0.0216,
+      "f1_mean": 0.4798,
+      "f1_std": 0.0358,
+      "precision_mean": 0.7333,
+      "precision_std": 0.0126,
+      "recall_mean": 0.3576,
+      "recall_std": 0.0379,
+      "mcc_mean": 0.2653,
+      "mcc_std": 0.0275,
+      "accuracy_mean": 0.614,
+      "top_features": [
+        [
+          "same_community",
+          0.4505
+        ],
+        [
+          "shortest_path_length",
+          0.069
+        ],
+        [
+          "path_confidence",
+          0.066
+        ],
+        [
+          "graph_link_strength",
+          0.0655
+        ],
+        [
+          "preferential_attachment",
+          0.0495
+        ],
+        [
+          "market_overlap_count",
+          0.0407
+        ],
+        [
+          "degree_v",
+          0.0402
+        ],
+        [
+          "degree_ratio",
+          0.0369
+        ]
+      ]
+    },
+    "+ Single: hub_depressed_index": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "path_confidence",
+        "graph_link_strength",
+        "same_community",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet",
+        "hub_depressed_index"
+      ],
+      "roc_auc_mean": 0.6563,
+      "roc_auc_std": 0.0215,
+      "pr_auc_mean": 0.6664,
+      "pr_auc_std": 0.0226,
+      "f1_mean": 0.476,
+      "f1_std": 0.0359,
+      "precision_mean": 0.7407,
+      "precision_std": 0.0209,
+      "recall_mean": 0.3517,
+      "recall_std": 0.0372,
+      "mcc_mean": 0.2687,
+      "mcc_std": 0.0313,
+      "accuracy_mean": 0.6144,
+      "top_features": [
+        [
+          "same_community",
+          0.4478
+        ],
+        [
+          "shortest_path_length",
+          0.0703
+        ],
+        [
+          "path_confidence",
+          0.0666
+        ],
+        [
+          "graph_link_strength",
+          0.0656
+        ],
+        [
+          "preferential_attachment",
+          0.0484
+        ],
+        [
+          "degree_v",
+          0.0424
+        ],
+        [
+          "market_overlap_count",
+          0.0401
+        ],
+        [
+          "degree_ratio",
+          0.0362
+        ]
+      ]
+    },
+    "+ Single: degree_diff_norm": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "path_confidence",
+        "graph_link_strength",
+        "same_community",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet",
+        "degree_diff_norm"
+      ],
+      "roc_auc_mean": 0.6525,
+      "roc_auc_std": 0.0204,
+      "pr_auc_mean": 0.6641,
+      "pr_auc_std": 0.0229,
+      "f1_mean": 0.4862,
+      "f1_std": 0.0355,
+      "precision_mean": 0.7409,
+      "precision_std": 0.0178,
+      "recall_mean": 0.3627,
+      "recall_std": 0.0365,
+      "mcc_mean": 0.2747,
+      "mcc_std": 0.0313,
+      "accuracy_mean": 0.6182,
+      "top_features": [
+        [
+          "same_community",
+          0.4489
+        ],
+        [
+          "shortest_path_length",
+          0.0713
+        ],
+        [
+          "graph_link_strength",
+          0.0632
+        ],
+        [
+          "path_confidence",
+          0.0623
+        ],
+        [
+          "preferential_attachment",
+          0.0443
+        ],
+        [
+          "degree_v",
+          0.0403
+        ],
+        [
+          "market_overlap_count",
+          0.0396
+        ],
+        [
+          "market_jaccard",
+          0.0362
+        ]
+      ]
+    },
+    "+ Single: vouched_common_count": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "path_confidence",
+        "graph_link_strength",
+        "same_community",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet",
+        "vouched_common_count"
+      ],
+      "roc_auc_mean": 0.6555,
+      "roc_auc_std": 0.0192,
+      "pr_auc_mean": 0.6656,
+      "pr_auc_std": 0.0209,
+      "f1_mean": 0.4825,
+      "f1_std": 0.0333,
+      "precision_mean": 0.7421,
+      "precision_std": 0.0224,
+      "recall_mean": 0.3585,
+      "recall_std": 0.0353,
+      "mcc_mean": 0.2732,
+      "mcc_std": 0.0298,
+      "accuracy_mean": 0.6169,
+      "top_features": [
+        [
+          "same_community",
+          0.4495
+        ],
+        [
+          "shortest_path_length",
+          0.0737
+        ],
+        [
+          "graph_link_strength",
+          0.0674
+        ],
+        [
+          "path_confidence",
+          0.0649
+        ],
+        [
+          "preferential_attachment",
+          0.0511
+        ],
+        [
+          "market_overlap_count",
+          0.0404
+        ],
+        [
+          "degree_v",
+          0.04
+        ],
+        [
+          "degree_ratio",
+          0.0367
+        ]
+      ]
+    },
+    "+ Single: transacted_common_count": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "path_confidence",
+        "graph_link_strength",
+        "same_community",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet",
+        "transacted_common_count"
+      ],
+      "roc_auc_mean": 0.6543,
+      "roc_auc_std": 0.017,
+      "pr_auc_mean": 0.6657,
+      "pr_auc_std": 0.0186,
+      "f1_mean": 0.4776,
+      "f1_std": 0.0296,
+      "precision_mean": 0.7327,
+      "precision_std": 0.0215,
+      "recall_mean": 0.3551,
+      "recall_std": 0.0313,
+      "mcc_mean": 0.2631,
+      "mcc_std": 0.0275,
+      "accuracy_mean": 0.6127,
+      "top_features": [
+        [
+          "same_community",
+          0.4436
+        ],
+        [
+          "shortest_path_length",
+          0.0723
+        ],
+        [
+          "graph_link_strength",
+          0.0677
+        ],
+        [
+          "path_confidence",
+          0.0675
+        ],
+        [
+          "preferential_attachment",
+          0.0503
+        ],
+        [
+          "degree_v",
+          0.0428
+        ],
+        [
+          "market_overlap_count",
+          0.0421
+        ],
+        [
+          "market_jaccard",
+          0.0371
+        ]
+      ]
+    },
+    "+ Single: cooccurred_common_count": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "path_confidence",
+        "graph_link_strength",
+        "same_community",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet",
+        "cooccurred_common_count"
+      ],
+      "roc_auc_mean": 0.6545,
+      "roc_auc_std": 0.0201,
+      "pr_auc_mean": 0.6656,
+      "pr_auc_std": 0.0195,
+      "f1_mean": 0.4829,
+      "f1_std": 0.0354,
+      "precision_mean": 0.7377,
+      "precision_std": 0.0139,
+      "recall_mean": 0.3602,
+      "recall_std": 0.0387,
+      "mcc_mean": 0.2702,
+      "mcc_std": 0.0256,
+      "accuracy_mean": 0.6161,
+      "top_features": [
+        [
+          "same_community",
+          0.4481
+        ],
+        [
+          "shortest_path_length",
+          0.0726
+        ],
+        [
+          "graph_link_strength",
+          0.0679
+        ],
+        [
+          "path_confidence",
+          0.0654
+        ],
+        [
+          "preferential_attachment",
+          0.0511
+        ],
+        [
+          "degree_v",
+          0.0415
+        ],
+        [
+          "market_overlap_count",
+          0.0407
+        ],
+        [
+          "degree_ratio",
+          0.037
+        ]
+      ]
+    },
+    "+ Single: market_overlap_ratio": {
+      "cols": [
+        "common_neighbors_count",
+        "jaccard_coefficient",
+        "adamic_adar_index",
+        "resource_allocation_index",
+        "preferential_attachment",
+        "degree_u",
+        "degree_v",
+        "degree_ratio",
+        "degree_diff",
+        "shortest_path_length",
+        "path_confidence",
+        "graph_link_strength",
+        "same_community",
+        "market_overlap_count",
+        "market_jaccard",
+        "same_pgp_key",
+        "same_wallet",
+        "market_overlap_ratio"
+      ],
+      "roc_auc_mean": 0.6577,
+      "roc_auc_std": 0.0205,
+      "pr_auc_mean": 0.6644,
+      "pr_auc_std": 0.0224,
+      "f1_mean": 0.4773,
+      "f1_std": 0.035,
+      "precision_mean": 0.7357,
+      "precision_std": 0.0241,
+      "recall_mean": 0.3542,
+      "recall_std": 0.0362,
+      "mcc_mean": 0.2655,
+      "mcc_std": 0.0328,
+      "accuracy_mean": 0.6136,
+      "top_features": [
+        [
+          "same_community",
+          0.4465
+        ],
+        [
+          "shortest_path_length",
+          0.0684
+        ],
+        [
+          "graph_link_strength",
+          0.0649
+        ],
+        [
+          "path_confidence",
+          0.0645
+        ],
+        [
+          "preferential_attachment",
+          0.048
+        ],
+        [
+          "degree_v",
+          0.0411
+        ],
+        [
+          "market_overlap_count",
+          0.0376
+        ],
+        [
+          "degree_ratio",
+          0.0358
+        ]
+      ]
+    }
+  },
+  "best_feature_set_name": "E. Ablation: Remove community + path + link_strength",
+  "best_feature_set": [
+    "common_neighbors_count",
+    "jaccard_coefficient",
+    "adamic_adar_index",
+    "resource_allocation_index",
+    "preferential_attachment",
+    "degree_u",
+    "degree_v",
+    "degree_ratio",
+    "degree_diff",
+    "shortest_path_length",
+    "market_overlap_count",
+    "market_jaccard",
+    "same_pgp_key",
+    "same_wallet"
+  ],
+  "rf_tuning": [
+    {
+      "param_str": "n_est=80, depth=6, split=4, leaf=2, feat=sqrt, wt=None",
+      "roc_auc_mean": 0.6605,
+      "pr_auc_mean": 0.6993,
+      "f1_mean": 0.5587,
+      "mcc_mean": 0.2865
+    },
+    {
+      "param_str": "n_est=100, depth=6, split=4, leaf=2, feat=sqrt, wt=None",
+      "roc_auc_mean": 0.6612,
+      "pr_auc_mean": 0.6997,
+      "f1_mean": 0.5569,
+      "mcc_mean": 0.2816
+    },
+    {
+      "param_str": "n_est=100, depth=8, split=4, leaf=1, feat=sqrt, wt=None",
+      "roc_auc_mean": 0.6539,
+      "pr_auc_mean": 0.6898,
+      "f1_mean": 0.5552,
+      "mcc_mean": 0.266
+    },
+    {
+      "param_str": "n_est=150, depth=8, split=4, leaf=2, feat=sqrt, wt=None",
+      "roc_auc_mean": 0.6529,
+      "pr_auc_mean": 0.6885,
+      "f1_mean": 0.5643,
+      "mcc_mean": 0.2786
+    },
+    {
+      "param_str": "n_est=200, depth=8, split=6, leaf=2, feat=sqrt, wt=None",
+      "roc_auc_mean": 0.6549,
+      "pr_auc_mean": 0.6904,
+      "f1_mean": 0.5587,
+      "mcc_mean": 0.2731
+    },
+    {
+      "param_str": "n_est=150, depth=10, split=4, leaf=2, feat=sqrt, wt=None",
+      "roc_auc_mean": 0.6519,
+      "pr_auc_mean": 0.6836,
+      "f1_mean": 0.5622,
+      "mcc_mean": 0.2615
+    },
+    {
+      "param_str": "n_est=150, depth=8, split=4, leaf=2, feat=log2, wt=None",
+      "roc_auc_mean": 0.6529,
+      "pr_auc_mean": 0.6885,
+      "f1_mean": 0.5643,
+      "mcc_mean": 0.2786
+    },
+    {
+      "param_str": "n_est=150, depth=8, split=4, leaf=2, feat=0.5, wt=None",
+      "roc_auc_mean": 0.6478,
+      "pr_auc_mean": 0.678,
+      "f1_mean": 0.5566,
+      "mcc_mean": 0.2574
+    },
+    {
+      "param_str": "n_est=150, depth=8, split=4, leaf=2, feat=sqrt, wt=balanced",
+      "roc_auc_mean": 0.6544,
+      "pr_auc_mean": 0.6894,
+      "f1_mean": 0.5604,
+      "mcc_mean": 0.2791
+    },
+    {
+      "param_str": "n_est=200, depth=6, split=4, leaf=3, feat=sqrt, wt=None",
+      "roc_auc_mean": 0.6593,
+      "pr_auc_mean": 0.6979,
+      "f1_mean": 0.5568,
+      "mcc_mean": 0.2796
+    }
+  ],
+  "xgb_tuning": [
+    {
+      "param_str": "n_est=60, depth=3, lr=0.05, sub=0.8, col=0.8, reg_a=0.1, reg_l=1.0",
+      "roc_auc_mean": 0.6581,
+      "pr_auc_mean": 0.6991,
+      "f1_mean": 0.5627,
+      "mcc_mean": 0.2671
+    },
+    {
+      "param_str": "n_est=80, depth=3, lr=0.05, sub=0.8, col=0.8, reg_a=0.1, reg_l=1.0",
+      "roc_auc_mean": 0.6572,
+      "pr_auc_mean": 0.6982,
+      "f1_mean": 0.5668,
+      "mcc_mean": 0.2763
+    },
+    {
+      "param_str": "n_est=100, depth=4, lr=0.05, sub=0.8, col=0.8, reg_a=0.5, reg_l=1.5",
+      "roc_auc_mean": 0.6516,
+      "pr_auc_mean": 0.6907,
+      "f1_mean": 0.5665,
+      "mcc_mean": 0.2638
+    },
+    {
+      "param_str": "n_est=100, depth=5, lr=0.08, sub=1.0, col=1.0, reg_a=0.0, reg_l=1.0",
+      "roc_auc_mean": 0.6395,
+      "pr_auc_mean": 0.6758,
+      "f1_mean": 0.5627,
+      "mcc_mean": 0.2572
+    },
+    {
+      "param_str": "n_est=120, depth=4, lr=0.04, sub=0.8, col=0.7, reg_a=0.5, reg_l=2.0",
+      "roc_auc_mean": 0.6546,
+      "pr_auc_mean": 0.6933,
+      "f1_mean": 0.5606,
+      "mcc_mean": 0.2523
+    },
+    {
+      "param_str": "n_est=150, depth=3, lr=0.03, sub=0.8, col=0.8, reg_a=0.2, reg_l=1.0",
+      "roc_auc_mean": 0.6582,
+      "pr_auc_mean": 0.6991,
+      "f1_mean": 0.563,
+      "mcc_mean": 0.2664
+    },
+    {
+      "param_str": "n_est=100, depth=3, lr=0.05, sub=0.7, col=0.7, reg_a=1.0, reg_l=3.0",
+      "roc_auc_mean": 0.6593,
+      "pr_auc_mean": 0.697,
+      "f1_mean": 0.5722,
+      "mcc_mean": 0.2728
+    }
+  ],
+  "best_model_name": "RandomForestClassifier",
+  "best_hyperparameters": {
+    "n_estimators": 100,
+    "max_depth": 6,
+    "min_samples_split": 4,
+    "min_samples_leaf": 2,
+    "max_features": "sqrt",
+    "class_weight": null
+  },
+  "oof_threshold_table": [
+    {
+      "threshold": 0.2,
+      "precision": 0.5032,
+      "recall": 0.9856,
+      "f1": 0.6663,
+      "specificity": 0.0271,
+      "mcc": 0.0446,
+      "TP": 1163,
+      "TN": 32,
+      "FP": 1148,
+      "FN": 17
+    },
+    {
+      "threshold": 0.25,
+      "precision": 0.507,
+      "recall": 0.9458,
+      "f1": 0.6602,
+      "specificity": 0.0805,
+      "mcc": 0.0524,
+      "TP": 1116,
+      "TN": 95,
+      "FP": 1085,
+      "FN": 64
+    },
+    {
+      "threshold": 0.3,
+      "precision": 0.5181,
+      "recall": 0.8983,
+      "f1": 0.6572,
+      "specificity": 0.1644,
+      "mcc": 0.0923,
+      "TP": 1060,
+      "TN": 194,
+      "FP": 986,
+      "FN": 120
+    },
+    {
+      "threshold": 0.35,
+      "precision": 0.5362,
+      "recall": 0.8042,
+      "f1": 0.6434,
+      "specificity": 0.3042,
+      "mcc": 0.1253,
+      "TP": 949,
+      "TN": 359,
+      "FP": 821,
+      "FN": 231
+    },
+    {
+      "threshold": 0.4,
+      "precision": 0.5797,
+      "recall": 0.6907,
+      "f1": 0.6303,
+      "specificity": 0.4992,
+      "mcc": 0.1934,
+      "TP": 815,
+      "TN": 589,
+      "FP": 591,
+      "FN": 365
+    },
+    {
+      "threshold": 0.45,
+      "precision": 0.6374,
+      "recall": 0.5661,
+      "f1": 0.5996,
+      "specificity": 0.678,
+      "mcc": 0.2456,
+      "TP": 668,
+      "TN": 800,
+      "FP": 380,
+      "FN": 512
+    },
+    {
+      "threshold": 0.5,
+      "precision": 0.7,
+      "recall": 0.4627,
+      "f1": 0.5571,
+      "specificity": 0.8017,
+      "mcc": 0.281,
+      "TP": 546,
+      "TN": 946,
+      "FP": 234,
+      "FN": 634
+    },
+    {
+      "threshold": 0.55,
+      "precision": 0.7401,
+      "recall": 0.3788,
+      "f1": 0.5011,
+      "specificity": 0.8669,
+      "mcc": 0.2816,
+      "TP": 447,
+      "TN": 1023,
+      "FP": 157,
+      "FN": 733
+    },
+    {
+      "threshold": 0.6,
+      "precision": 0.787,
+      "recall": 0.3068,
+      "f1": 0.4415,
+      "specificity": 0.9169,
+      "mcc": 0.2824,
+      "TP": 362,
+      "TN": 1082,
+      "FP": 98,
+      "FN": 818
+    },
+    {
+      "threshold": 0.65,
+      "precision": 0.8388,
+      "recall": 0.2602,
+      "f1": 0.3972,
+      "specificity": 0.95,
+      "mcc": 0.2903,
+      "TP": 307,
+      "TN": 1121,
+      "FP": 59,
+      "FN": 873
+    },
+    {
+      "threshold": 0.7,
+      "precision": 0.8717,
+      "recall": 0.2246,
+      "f1": 0.3571,
+      "specificity": 0.9669,
+      "mcc": 0.2859,
+      "TP": 265,
+      "TN": 1141,
+      "FP": 39,
+      "FN": 915
+    }
+  ],
+  "best_oof_threshold": 0.2,
+  "final_test_results": {
+    "tau_0.50": {
+      "threshold": 0.5,
+      "confusion_matrix": {
+        "TP": 136,
+        "TN": 230,
+        "FP": 65,
+        "FN": 159
+      },
+      "accuracy": 0.6203,
+      "precision": 0.6766,
+      "recall": 0.461,
+      "f1_score": 0.5484,
+      "specificity": 0.7797,
+      "mcc": 0.2539,
+      "roc_auc": 0.651,
+      "pr_auc": 0.6871,
+      "log_loss": 0.657
+    },
+    "tau_0.20": {
+      "threshold": 0.2,
+      "confusion_matrix": {
+        "TP": 291,
+        "TN": 5,
+        "FP": 290,
+        "FN": 4
+      },
+      "accuracy": 0.5017,
+      "precision": 0.5009,
+      "recall": 0.9864,
+      "f1_score": 0.6644,
+      "specificity": 0.0169,
+      "mcc": 0.0138,
+      "roc_auc": 0.651,
+      "pr_auc": 0.6871,
+      "log_loss": 0.657
+    }
+  },
+  "leakage_checks": {
+    "held_out_edges_in_G_train": 0,
+    "negative_train_positive_overlap": 0,
+    "negative_test_positive_overlap": 0,
+    "train_test_negative_overlap": 0,
+    "candidate_masking_applied": true,
+    "zero_test_leakage_in_folds": true
+  }
+}

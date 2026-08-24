@@ -1,0 +1,15 @@
+Rank,Feature,Importance
+1,shortest_path_length,0.1822
+2,adamic_adar_index,0.1001
+3,preferential_attachment,0.0962
+4,degree_v,0.0915
+5,market_overlap_count,0.0897
+6,resource_allocation_index,0.075
+7,market_jaccard,0.0719
+8,jaccard_coefficient,0.066
+9,degree_u,0.0631
+10,degree_diff,0.0628
+11,degree_ratio,0.0518
+12,common_neighbors_count,0.0499
+13,same_pgp_key,0.0
+14,same_wallet,0.0

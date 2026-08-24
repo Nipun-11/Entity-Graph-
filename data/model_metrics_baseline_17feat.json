@@ -1,0 +1,122 @@
+{
+  "model_type": "RandomForestClassifier",
+  "evaluation_protocol": "Edge-Holdout (Strict Zero-Leakage)",
+  "evaluation_summary": {
+    "test_roc_auc": 0.6394,
+    "test_pr_auc": 0.6719,
+    "test_f1_score": 0.4874,
+    "test_precision": 0.7571,
+    "test_recall": 0.3593,
+    "test_specificity": 0.8847,
+    "test_accuracy": 0.622,
+    "test_mcc": 0.2869,
+    "test_log_loss": 0.7248,
+    "confusion_matrix": {
+      "TP": 106,
+      "TN": 261,
+      "FP": 34,
+      "FN": 189
+    },
+    "cv_metrics": {
+      "cv_roc_auc_mean": 0.6571,
+      "cv_roc_auc_std": 0.0173,
+      "cv_f1_mean": 0.4761,
+      "cv_f1_std": 0.0352,
+      "cv_precision_mean": 0.7368,
+      "cv_recall_mean": 0.3525,
+      "cv_accuracy_mean": 0.6136
+    }
+  },
+  "feature_importance_ranking": [
+    {
+      "feature": "same_community",
+      "importance": 0.4362
+    },
+    {
+      "feature": "graph_link_strength",
+      "importance": 0.0633
+    },
+    {
+      "feature": "path_confidence",
+      "importance": 0.0603
+    },
+    {
+      "feature": "preferential_attachment",
+      "importance": 0.0544
+    },
+    {
+      "feature": "shortest_path_length",
+      "importance": 0.0538
+    },
+    {
+      "feature": "degree_v",
+      "importance": 0.046
+    },
+    {
+      "feature": "adamic_adar_index",
+      "importance": 0.0421
+    },
+    {
+      "feature": "resource_allocation_index",
+      "importance": 0.0416
+    },
+    {
+      "feature": "degree_ratio",
+      "importance": 0.0384
+    },
+    {
+      "feature": "market_jaccard",
+      "importance": 0.035
+    },
+    {
+      "feature": "market_overlap_count",
+      "importance": 0.0321
+    },
+    {
+      "feature": "degree_u",
+      "importance": 0.0321
+    },
+    {
+      "feature": "degree_diff",
+      "importance": 0.03
+    },
+    {
+      "feature": "jaccard_coefficient",
+      "importance": 0.0188
+    },
+    {
+      "feature": "common_neighbors_count",
+      "importance": 0.016
+    },
+    {
+      "feature": "same_pgp_key",
+      "importance": 0.0
+    },
+    {
+      "feature": "same_wallet",
+      "importance": 0.0
+    }
+  ],
+  "dataset_info": {
+    "train_samples": 2360,
+    "test_samples": 590,
+    "features_count": 17,
+    "train_positives": 1180,
+    "train_negatives": 1180,
+    "test_positives": 295,
+    "test_negatives": 295
+  },
+  "execution_timings_seconds": {
+    "train_feature_time": 6.828,
+    "test_feature_time": 2.219,
+    "model_train_time": 0.3,
+    "eval_time": 0.032,
+    "total_pipeline_time": 9.379
+  },
+  "leakage_audit_status": {
+    "edge_holdout_enforced": true,
+    "held_out_edges_in_G_train": 0,
+    "candidate_masking_during_training": true,
+    "internally_consistent_metrics": true
+  }
+}
