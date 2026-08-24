@@ -1,0 +1,172 @@
+[1mdiff --git a/traversal.py b/traversal.py[m
+[1mindex 3764b86..0b6072e 100644[m
+[1m--- a/traversal.py[m
+[1m+++ b/traversal.py[m
+[36m@@ -5,6 +5,8 @@[m [mFinds connections between canonical entities via multi-hop paths,[m
+ computes path_confidence and graph_link_strength scores.[m
+ [m
+ Per ANTIGRAVITY_BUILD_SPEC.md §4.2:[m
+[32m+[m[32m  - Traverses the directed MultiDiGraph: VOUCHED_FOR is directional (A -> B),[m
+[32m+[m[32m    while CO_OCCURRED_IN_THREAD and TRANSACTED_WITH are symmetric (bidirectional).[m
+   - path_confidence: multiply confidence_weight along each edge in a path[m
+   - graph_link_strength: combine path count + strongest path confidence[m
+   - Supports up to N=3 hop traversals (deeper paths get noisy)[m
+[36m@@ -33,6 +35,7 @@[m [mclass GraphTraversal:[m
+             graph: The MultiDiGraph from EntityGraph.get_graph()[m
+         """[m
+         self.graph = graph[m
+[32m+[m[32m        # Undirected view used strictly for community detection and component reachability checks[m
+         self._undirected = graph.to_undirected()[m
+ [m
+     # ------------------------------------------------------------------[m
+[36m@@ -47,6 +50,7 @@[m [mclass GraphTraversal:[m
+     ) -> Dict[str, Any]:[m
+         """[m
+         Find the shortest path and all simple paths between two entities.[m
+[32m+[m[32m        Queries the directed MultiDiGraph to enforce VOUCHED_FOR directionality.[m
+ [m
+         Returns dict with:[m
+           - connected: bool[m
+[36m@@ -70,9 +74,9 @@[m [mclass GraphTraversal:[m
+                 "evidence_path": [],[m
+             }[m
+ [m
+[31m-        # Check connectivity on undirected view (since some edges are directional)[m
+[32m+[m[32m        # Check connectivity on directed MultiDiGraph (respecting edge directionality)[m
+         try:[m
+[31m-            if not nx.has_path(self._undirected, source, target):[m
+[32m+[m[32m            if not nx.has_path(self.graph, source, target):[m
+                 return {[m
+                     "entity_id_a": source,[m
+                     "entity_id_b": target,[m
+[36m@@ -97,9 +101,9 @@[m [mclass GraphTraversal:[m
+                 "evidence_path": [],[m
+             }[m
+ [m
+[31m-        # Find shortest path (on undirected view for reachability)[m
+[32m+[m[32m        # Find shortest path on directed MultiDiGraph[m
+         try:[m
+[31m-            shortest = nx.shortest_path(self._undirected, source, target)[m
+[32m+[m[32m            shortest = nx.shortest_path(self.graph, source, target)[m
+         except nx.NetworkXNoPath:[m
+             return {[m
+                 "entity_id_a": source,[m
+[36m@@ -117,10 +121,10 @@[m [mclass GraphTraversal:[m
+         sp_confidence = self.path_confidence(shortest)[m
+         evidence = self._build_evidence_path(shortest)[m
+ [m
+[31m-        # Find all simple paths (capped at cutoff)[m
+[32m+[m[32m        # Find all simple paths (capped at cutoff, using directed MultiDiGraph)[m
+         try:[m
+             all_paths = list(nx.all_simple_paths([m
+[31m-                self._undirected, source, target, cutoff=cutoff[m
+[32m+[m[32m                self.graph, source, target, cutoff=cutoff[m
+             ))[m
+         except nx.NetworkXError:[m
+             all_paths = [shortest][m
+[36m@@ -175,7 +179,7 @@[m [mclass GraphTraversal:[m
+         """[m
+         try:[m
+             all_paths = list(nx.all_simple_paths([m
+[31m-                self._undirected, source, target, cutoff=cutoff[m
+[32m+[m[32m                self.graph, source, target, cutoff=cutoff[m
+             ))[m
+         except (nx.NetworkXError, nx.NodeNotFound):[m
+             return 0.0[m
+[36m@@ -211,6 +215,7 @@[m [mclass GraphTraversal:[m
+     ) -> List[Dict[str, Any]]:[m
+         """[m
+         Find all entities reachable from entity_id within max_hops.[m
+[32m+[m[32m        Traverses directed successors in self.graph to respect VOUCHED_FOR directionality.[m
+ [m
+         Returns list of dicts with entity_id, distance, path_confidence.[m
+         """[m
+[36m@@ -220,20 +225,20 @@[m [mclass GraphTraversal:[m
+         connections = [][m
+         visited = {entity_id}[m
+ [m
+[31m-        # BFS up to max_hops[m
+[32m+[m[32m        # BFS up to max_hops using directed graph successors[m
+         current_layer = {entity_id}[m
+         for hop in range(1, max_hops + 1):[m
+             next_layer = set()[m
+             for node in current_layer:[m
+[31m-                for neighbor in self._undirected.neighbors(node):[m
+[32m+[m[32m                for neighbor in self.graph.successors(node):[m
+                     if neighbor not in visited:[m
+                         visited.add(neighbor)[m
+                         next_layer.add(neighbor)[m
+ [m
+[31m-                        # Get path confidence[m
+[32m+[m[32m                        # Get path confidence along directed path[m
+                         try:[m
+                             path = nx.shortest_path([m
+[31m-                                self._undirected, entity_id, neighbor[m
+[32m+[m[32m                                self.graph, entity_id, neighbor[m
+                             )[m
+                             conf = self.path_confidence(path)[m
+                         except nx.NetworkXNoPath:[m
+[36m@@ -253,7 +258,7 @@[m [mclass GraphTraversal:[m
+     def get_connected_component(self, entity_id: str) -> set:[m
+         """[m
+         Get all entities in the same connected component as entity_id.[m
+[31m-        Uses undirected view.[m
+[32m+[m[32m        Uses undirected view for component membership.[m
+         """[m
+         if entity_id not in self._undirected:[m
+             return set()[m
+[36m@@ -266,6 +271,7 @@[m [mclass GraphTraversal:[m
+     def detect_communities(self) -> List[set]:[m
+         """[m
+         Run Louvain community detection on the entity graph.[m
+[32m+[m[32m        Uses undirected view for community partitioning.[m
+ [m
+         Returns list of sets, each set = community of entity_ids.[m
+         """[m
+[36m@@ -285,25 +291,16 @@[m [mclass GraphTraversal:[m
+ [m
+     def _best_edge_confidence(self, u: str, v: str) -> float:[m
+         """[m
+[31m-        Get the highest confidence across all parallel edges between u and v.[m
+[31m-        Checks both directions since we're working with undirected paths.[m
+[32m+[m[32m        Get the highest confidence across all parallel edges from u to v.[m
+         """[m
+         best = 0.0[m
+ [m
+[31m-        # Check u -> v[m
+         if self.graph.has_edge(u, v):[m
+             for key, data in self.graph[u][v].items():[m
+                 conf = data.get("confidence", 0.0)[m
+                 if conf > best:[m
+                     best = conf[m
+ [m
+[31m-        # Check v -> u (for directed edges)[m
+[31m-        if self.graph.has_edge(v, u):[m
+[31m-            for key, data in self.graph[v][u].items():[m
+[31m-                conf = data.get("confidence", 0.0)[m
+[31m-                if conf > best:[m
+[31m-                    best = conf[m
+[31m-[m
+         return best[m
+ [m
+     def _build_evidence_path(self, path: List[str]) -> List[dict]:[m
+[36m@@ -321,14 +318,13 @@[m [mclass GraphTraversal:[m
+         return evidence[m
+ [m
+     def _get_best_edge_data(self, u: str, v: str) -> dict:[m
+[31m-        """Get the edge data for the highest-confidence edge between u and v."""[m
+[32m+[m[32m        """Get the edge data for the highest-confidence edge from u to v."""[m
+         best = {"confidence": 0.0}[m
+ [m
+[31m-        for src, tgt in [(u, v), (v, u)]:[m
+[31m-            if self.graph.has_edge(src, tgt):[m
+[31m-                for key, data in self.graph[src][tgt].items():[m
+[31m-                    if data.get("confidence", 0.0) > best["confidence"]:[m
+[31m-                        best = dict(data)[m
+[32m+[m[32m        if self.graph.has_edge(u, v):[m
+[32m+[m[32m            for key, data in self.graph[u][v].items():[m
+[32m+[m[32m                if data.get("confidence", 0.0) > best["confidence"]:[m
+[32m+[m[32m                    best = dict(data)[m
+ [m
+         return best[m
+ [m
