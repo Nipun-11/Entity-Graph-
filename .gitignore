@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Large raw data (not tracked — too large for GitHub)
+real_darknet_listings.csv
+
+# Debug files
+data/_handle_mapping_DEBUG.json
+
+# Generated output (can be regenerated)
+data/entity_graph_output.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

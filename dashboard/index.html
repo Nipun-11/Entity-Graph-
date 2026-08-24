@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>De-Anonymity | Entity Relationship Graph</title>
+    <meta name="description" content="Dark Web Threat Actor De-Anonymization — Entity Relationship Graph Dashboard">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/dashboard/style.css">
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="topnav" id="topnav">
+        <div class="nav-brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+                </svg>
+            </div>
+            <span class="brand-name">De-Anonymity</span>
+            <span class="brand-badge">ENTITY GRAPH</span>
+        </div>
+        <div class="nav-search">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input type="text" id="search-input" placeholder="Search handle, PGP key, or wallet…" autocomplete="off">
+            <kbd>⌘K</kbd>
+        </div>
+        <div class="nav-actions">
+            <button class="btn-icon" id="btn-reset-view" title="Reset View">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                    <path d="M3 3v5h5"/>
+                </svg>
+            </button>
+            <button class="btn-icon" id="btn-export-json" title="Export JSON">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7,10 12,15 17,10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+            </button>
+            <button class="btn-icon" id="btn-export-csv" title="Export CSV">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Layout -->
+    <div class="app-layout">
+        <!-- Left Sidebar: Clusters -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Identity Clusters</h2>
+                <span class="cluster-count" id="cluster-count">0</span>
+            </div>
+            <div class="cluster-list" id="cluster-list">
+                <!-- Populated by JS -->
+            </div>
+            <div class="sidebar-footer">
+                <div class="stats-grid" id="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-nodes">—</span>
+                        <span class="stat-label">Nodes</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-edges">—</span>
+                        <span class="stat-label">Edges</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-handles">—</span>
+                        <span class="stat-label">Handles</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-clusters">—</span>
+                        <span class="stat-label">Clusters</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center: Graph Visualization -->
+        <main class="graph-container" id="graph-container">
+            <div class="graph-overlay" id="graph-overlay">
+                <div class="loading-spinner">
+                    <div class="spinner-ring"></div>
+                    <p>Loading graph data…</p>
+                </div>
+            </div>
+            <svg id="graph-svg"></svg>
+            <div class="graph-legend" id="graph-legend">
+                <h4>Legend</h4>
+                <div class="legend-item"><span class="legend-dot" style="background: var(--color-handle)"></span> Handle</div>
+                <div class="legend-item"><span class="legend-dot" style="background: var(--color-pgp)"></span> PGP Key</div>
+                <div class="legend-item"><span class="legend-dot" style="background: var(--color-wallet)"></span> Wallet</div>
+                <div class="legend-item"><span class="legend-dot" style="background: var(--color-marketplace)"></span> Marketplace</div>
+                <div class="legend-item"><span class="legend-line dashed"></span> Same Actor (inferred)</div>
+                <div class="legend-item"><span class="legend-line solid"></span> Factual Link</div>
+            </div>
+            <div class="graph-controls">
+                <button class="control-btn" id="btn-zoom-in" title="Zoom In">+</button>
+                <button class="control-btn" id="btn-zoom-out" title="Zoom Out">−</button>
+                <button class="control-btn" id="btn-fit" title="Fit to View">◻</button>
+            </div>
+        </main>
+
+        <!-- Right Panel: Entity Detail -->
+        <aside class="detail-panel" id="detail-panel">
+            <div class="detail-empty" id="detail-empty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="detail-empty-icon">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4M12 8h.01"/>
+                </svg>
+                <p>Click a node in the graph or search for an entity to view details</p>
+            </div>
+            <div class="detail-content" id="detail-content" style="display: none;">
+                <div class="detail-header" id="detail-header">
+                    <div class="detail-type-badge" id="detail-type-badge">Handle</div>
+                    <h3 id="detail-title">—</h3>
+                    <p id="detail-subtitle">—</p>
+                </div>
+                <div class="detail-sections" id="detail-sections">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Toast notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="/dashboard/app.js"></script>
+</body>
+</html>

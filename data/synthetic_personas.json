@@ -1,0 +1,1018 @@
+{
+  "metadata": {
+    "generated_at": "2026-08-23T17:16:28.181812",
+    "generator": "SIH26151 Entity Graph Module — Synthetic Dataset v1.0",
+    "total_personas": 18,
+    "total_handles": 24,
+    "total_pgp_keys": 21,
+    "total_wallets": 21,
+    "total_trust_links": 28,
+    "planted_rebrands": 4,
+    "ambiguous_personas": 2,
+    "note": "SYNTHETIC DATA ONLY — no real dark web data. Created for SIH 2026 demonstration purposes."
+  },
+  "personas": [
+    {
+      "actor_id": "ACTOR_001",
+      "type": "unique",
+      "true_handles": [
+        "viper772"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_002",
+      "type": "unique",
+      "true_handles": [
+        "ghostcrypt232"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_003",
+      "type": "unique",
+      "true_handles": [
+        "nullbyte606"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_004",
+      "type": "unique",
+      "true_handles": [
+        "darkphoenix334"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_005",
+      "type": "unique",
+      "true_handles": [
+        "silkworm166"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_006",
+      "type": "unique",
+      "true_handles": [
+        "zeroday940"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_007",
+      "type": "unique",
+      "true_handles": [
+        "blackmamba854"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_008",
+      "type": "unique",
+      "true_handles": [
+        "cryptking86"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_009",
+      "type": "unique",
+      "true_handles": [
+        "neonshade653"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_010",
+      "type": "unique",
+      "true_handles": [
+        "phantomx204"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_011",
+      "type": "unique",
+      "true_handles": [
+        "ironcloak78"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_012",
+      "type": "unique",
+      "true_handles": [
+        "bytebandit519"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_R01",
+      "type": "rebrand_both",
+      "true_handles": [
+        "spectre780",
+        "wraithseller326"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_R02",
+      "type": "rebrand_pgp_only",
+      "true_handles": [
+        "acidrain879",
+        "voltdrop565"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_R03",
+      "type": "rebrand_wallet_only",
+      "true_handles": [
+        "deepstate529",
+        "shadowgov548"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_R04",
+      "type": "rebrand_both",
+      "true_handles": [
+        "venomstrike345",
+        "cobrafang744"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_A01",
+      "type": "ambiguous_trust_only",
+      "true_handles": [
+        "mirrorman535",
+        "glasswalker580"
+      ]
+    },
+    {
+      "actor_id": "ACTOR_A02",
+      "type": "ambiguous_trust_only",
+      "true_handles": [
+        "dustdevil999",
+        "sandstorm961"
+      ]
+    }
+  ],
+  "handles": [
+    {
+      "handle_id": "H_viper772",
+      "username": "viper772",
+      "marketplace": "Shadow Bazaar",
+      "marketplace_type": "market",
+      "registered_date": "2024-10-14T00:00:00",
+      "reputation_score": 4.08,
+      "total_listings": 196
+    },
+    {
+      "handle_id": "H_ghostcrypt232",
+      "username": "ghostcrypt232",
+      "marketplace": "DarkTrade Forum",
+      "marketplace_type": "forum",
+      "registered_date": "2025-05-10T00:00:00",
+      "reputation_score": 3.12,
+      "total_listings": 193
+    },
+    {
+      "handle_id": "H_nullbyte606",
+      "username": "nullbyte606",
+      "marketplace": "DarkTrade Forum",
+      "marketplace_type": "forum",
+      "registered_date": "2024-10-09T00:00:00",
+      "reputation_score": 3.3,
+      "total_listings": 37
+    },
+    {
+      "handle_id": "H_darkphoenix334",
+      "username": "darkphoenix334",
+      "marketplace": "CryptoAlley",
+      "marketplace_type": "forum",
+      "registered_date": "2025-05-01T00:00:00",
+      "reputation_score": 4.51,
+      "total_listings": 118
+    },
+    {
+      "handle_id": "H_silkworm166",
+      "username": "silkworm166",
+      "marketplace": "CryptoAlley",
+      "marketplace_type": "forum",
+      "registered_date": "2024-05-02T00:00:00",
+      "reputation_score": 3.25,
+      "total_listings": 176
+    },
+    {
+      "handle_id": "H_zeroday940",
+      "username": "zeroday940",
+      "marketplace": "Onion Exchange",
+      "marketplace_type": "market",
+      "registered_date": "2024-08-14T00:00:00",
+      "reputation_score": 3.59,
+      "total_listings": 155
+    },
+    {
+      "handle_id": "H_blackmamba854",
+      "username": "blackmamba854",
+      "marketplace": "CryptoAlley",
+      "marketplace_type": "forum",
+      "registered_date": "2024-01-01T00:00:00",
+      "reputation_score": 4.32,
+      "total_listings": 143
+    },
+    {
+      "handle_id": "H_cryptking86",
+      "username": "cryptking86",
+      "marketplace": "Shadow Bazaar",
+      "marketplace_type": "market",
+      "registered_date": "2024-08-28T00:00:00",
+      "reputation_score": 4.56,
+      "total_listings": 72
+    },
+    {
+      "handle_id": "H_neonshade653",
+      "username": "neonshade653",
+      "marketplace": "Shadow Bazaar",
+      "marketplace_type": "market",
+      "registered_date": "2024-02-19T00:00:00",
+      "reputation_score": 4.81,
+      "total_listings": 170
+    },
+    {
+      "handle_id": "H_phantomx204",
+      "username": "phantomx204",
+      "marketplace": "DarkTrade Forum",
+      "marketplace_type": "forum",
+      "registered_date": "2025-05-10T00:00:00",
+      "reputation_score": 3.24,
+      "total_listings": 121
+    },
+    {
+      "handle_id": "H_ironcloak78",
+      "username": "ironcloak78",
+      "marketplace": "Onion Exchange",
+      "marketplace_type": "market",
+      "registered_date": "2024-02-16T00:00:00",
+      "reputation_score": 4.66,
+      "total_listings": 28
+    },
+    {
+      "handle_id": "H_bytebandit519",
+      "username": "bytebandit519",
+      "marketplace": "Hydra Reborn",
+      "marketplace_type": "market",
+      "registered_date": "2025-01-17T00:00:00",
+      "reputation_score": 3.86,
+      "total_listings": 38
+    },
+    {
+      "handle_id": "H_spectre780",
+      "username": "spectre780",
+      "marketplace": "Onion Exchange",
+      "marketplace_type": "market",
+      "registered_date": "2025-01-18T00:00:00",
+      "reputation_score": 4.68,
+      "total_listings": 129
+    },
+    {
+      "handle_id": "H_wraithseller326",
+      "username": "wraithseller326",
+      "marketplace": "DarkTrade Forum",
+      "marketplace_type": "forum",
+      "registered_date": "2025-05-09T00:00:00",
+      "reputation_score": 4.71,
+      "total_listings": 250
+    },
+    {
+      "handle_id": "H_acidrain879",
+      "username": "acidrain879",
+      "marketplace": "Hydra Reborn",
+      "marketplace_type": "market",
+      "registered_date": "2024-11-07T00:00:00",
+      "reputation_score": 4.52,
+      "total_listings": 234
+    },
+    {
+      "handle_id": "H_voltdrop565",
+      "username": "voltdrop565",
+      "marketplace": "Shadow Bazaar",
+      "marketplace_type": "market",
+      "registered_date": "2024-05-28T00:00:00",
+      "reputation_score": 4.84,
+      "total_listings": 90
+    },
+    {
+      "handle_id": "H_deepstate529",
+      "username": "deepstate529",
+      "marketplace": "DarkTrade Forum",
+      "marketplace_type": "forum",
+      "registered_date": "2025-02-28T00:00:00",
+      "reputation_score": 4.26,
+      "total_listings": 260
+    },
+    {
+      "handle_id": "H_shadowgov548",
+      "username": "shadowgov548",
+      "marketplace": "CryptoAlley",
+      "marketplace_type": "forum",
+      "registered_date": "2024-07-11T00:00:00",
+      "reputation_score": 3.97,
+      "total_listings": 98
+    },
+    {
+      "handle_id": "H_venomstrike345",
+      "username": "venomstrike345",
+      "marketplace": "Shadow Bazaar",
+      "marketplace_type": "market",
+      "registered_date": "2025-03-13T00:00:00",
+      "reputation_score": 4.28,
+      "total_listings": 69
+    },
+    {
+      "handle_id": "H_cobrafang744",
+      "username": "cobrafang744",
+      "marketplace": "CryptoAlley",
+      "marketplace_type": "forum",
+      "registered_date": "2024-10-25T00:00:00",
+      "reputation_score": 4.23,
+      "total_listings": 271
+    },
+    {
+      "handle_id": "H_mirrorman535",
+      "username": "mirrorman535",
+      "marketplace": "Onion Exchange",
+      "marketplace_type": "market",
+      "registered_date": "2024-09-29T00:00:00",
+      "reputation_score": 3.41,
+      "total_listings": 5
+    },
+    {
+      "handle_id": "H_glasswalker580",
+      "username": "glasswalker580",
+      "marketplace": "Shadow Bazaar",
+      "marketplace_type": "market",
+      "registered_date": "2024-12-28T00:00:00",
+      "reputation_score": 4.26,
+      "total_listings": 13
+    },
+    {
+      "handle_id": "H_dustdevil999",
+      "username": "dustdevil999",
+      "marketplace": "DarkTrade Forum",
+      "marketplace_type": "forum",
+      "registered_date": "2025-03-06T00:00:00",
+      "reputation_score": 3.78,
+      "total_listings": 33
+    },
+    {
+      "handle_id": "H_sandstorm961",
+      "username": "sandstorm961",
+      "marketplace": "Onion Exchange",
+      "marketplace_type": "market",
+      "registered_date": "2024-08-09T00:00:00",
+      "reputation_score": 2.53,
+      "total_listings": 15
+    }
+  ],
+  "pgp_keys": [
+    {
+      "fingerprint": "A043BAE1603803A839C0CB52F511D9CB8F68D9D9",
+      "associated_handles": [
+        "viper772"
+      ],
+      "created_date": "2024-03-26T00:00:00",
+      "key_type": "Ed25519"
+    },
+    {
+      "fingerprint": "63F8101AC616F8FD0BA84A167FE482ED4A92C8C8",
+      "associated_handles": [
+        "ghostcrypt232"
+      ],
+      "created_date": "2024-03-04T00:00:00",
+      "key_type": "RSA-4096"
+    },
+    {
+      "fingerprint": "507E808D11D6F9901A954A542A7EE09918825134",
+      "associated_handles": [
+        "nullbyte606"
+      ],
+      "created_date": "2023-06-22T00:00:00",
+      "key_type": "Ed25519"
+    },
+    {
+      "fingerprint": "ECDE331CE692EDFCE0B5ECDC4C1DD3D74C3035DF",
+      "associated_handles": [
+        "darkphoenix334"
+      ],
+      "created_date": "2024-02-14T00:00:00",
+      "key_type": "Ed25519"
+    },
+    {
+      "fingerprint": "72D7CD4C737B35E126236570D6CF0E97F46ED8BC",
+      "associated_handles": [
+        "silkworm166"
+      ],
+      "created_date": "2023-07-29T00:00:00",
+      "key_type": "RSA-4096"
+    },
+    {
+      "fingerprint": "BC29B1DF104AF6B1BA1CD91FC56585DD1FADB6BF",
+      "associated_handles": [
+        "zeroday940"
+      ],
+      "created_date": "2024-01-06T00:00:00",
+      "key_type": "Ed25519"
+    },
+    {
+      "fingerprint": "99BF33A22107943BB7AECAAE68AED124B941BBF8",
+      "associated_handles": [
+        "blackmamba854"
+      ],
+      "created_date": "2024-01-23T00:00:00",
+      "key_type": "Ed25519"
+    },
+    {
+      "fingerprint": "35CAC38E7B1F932881FE71D7B84DF386E8ED4C6E",
+      "associated_handles": [
+        "cryptking86"
+      ],
+      "created_date": "2023-11-21T00:00:00",
+      "key_type": "Ed25519"
+    },
+    {
+      "fingerprint": "15A8FAE7893A431FCB1240505636A2296A793A7A",
+      "associated_handles": [
+        "neonshade653"
+      ],
+      "created_date": "2023-06-21T00:00:00",
+      "key_type": "Ed25519"
+    },
+    {
+      "fingerprint": "052E563CE5842EFF4DC71C3AA6D816415B46A5A7",
+      "associated_handles": [
+        "phantomx204"
+      ],
+      "created_date": "2023-07-17T00:00:00",
+      "key_type": "RSA-4096"
+    },
+    {
+      "fingerprint": "AF05FC3D89D3CC94FF8C1D25C9042611759739BE",
+      "associated_handles": [
+        "ironcloak78"
+      ],
+      "created_date": "2024-01-08T00:00:00",
+      "key_type": "RSA-4096"
+    },
+    {
+      "fingerprint": "BC898515ACDBF9593A31D5C9CDFD9A0ED42B450D",
+      "associated_handles": [
+        "bytebandit519"
+      ],
+      "created_date": "2023-12-12T00:00:00",
+      "key_type": "RSA-4096"
+    },
+    {
+      "fingerprint": "8A56B671566A46F2F7B561661DB3C1A83C5FA214",
+      "associated_handles": [
+        "spectre780"
+      ],
+      "created_date": "2023-10-15T00:00:00",
+      "key_type": "RSA-4096"
+    },
+    {
+      "fingerprint": "8A56B671566A46F2F7B561661DB3C1A83C5FA214",
+      "associated_handles": [
+        "wraithseller326"
+      ],
+      "created_date": "2023-07-20T00:00:00",
+      "key_type": "RSA-4096"
+    },
+    {
+      "fingerprint": "A97CC86239D075EB811278D1EDEE66561351B520",
+      "associated_handles": [
+        "acidrain879"
+      ],
+      "created_date": "2023-06-09T00:00:00",
+      "key_type": "RSA-4096"
+    },
+    {
+      "fingerprint": "A97CC86239D075EB811278D1EDEE66561351B520",
+      "associated_handles": [
+        "voltdrop565"
+      ],
+      "created_date": "2023-11-30T00:00:00",
+      "key_type": "RSA-4096"
+    },
+    {
+      "fingerprint": "B4D5AF9CBB07FCC9B92A9D2A0F1052B6CEDB0235",
+      "associated_handles": [
+        "deepstate529"
+      ],
+      "created_date": "2023-11-17T00:00:00",
+      "key_type": "RSA-4096"
+    },
+    {
+      "fingerprint": "ED4A824882F2AB9D9D00A9AC6A7A4F7CA4107739",
+      "associated_handles": [
+        "shadowgov548"
+      ],
+      "created_date": "2023-09-26T00:00:00",
+      "key_type": "RSA-4096"
+    },
+    {
+      "fingerprint": "55CBAB93383F443B55EC41A6FDFC44B574738EB2",
+      "associated_handles": [
+        "venomstrike345"
+      ],
+      "created_date": "2023-11-22T00:00:00",
+      "key_type": "RSA-4096"
+    },
+    {
+      "fingerprint": "55CBAB93383F443B55EC41A6FDFC44B574738EB2",
+      "associated_handles": [
+        "cobrafang744"
+      ],
+      "created_date": "2023-09-23T00:00:00",
+      "key_type": "RSA-4096"
+    },
+    {
+      "fingerprint": "8A4040316B80EF7422ABF5E7E61FD2D1F62FDCF7",
+      "associated_handles": [
+        "mirrorman535"
+      ],
+      "created_date": "2024-02-01T00:00:00",
+      "key_type": "Ed25519"
+    },
+    {
+      "fingerprint": "A67FFAC5626C7D4BCE8F8233AED1B34A9D3CB87D",
+      "associated_handles": [
+        "glasswalker580"
+      ],
+      "created_date": "2023-10-25T00:00:00",
+      "key_type": "Ed25519"
+    },
+    {
+      "fingerprint": "7B5282EFF8D1D002A12370AEEA0860B848B6F2E8",
+      "associated_handles": [
+        "dustdevil999"
+      ],
+      "created_date": "2023-10-01T00:00:00",
+      "key_type": "RSA-4096"
+    },
+    {
+      "fingerprint": "9CB6123D6E5C2FB8F06D5CF6C04F75F6AA19CB12",
+      "associated_handles": [
+        "sandstorm961"
+      ],
+      "created_date": "2024-01-30T00:00:00",
+      "key_type": "RSA-4096"
+    }
+  ],
+  "wallets": [
+    {
+      "address": "bc1q0341314a5534ea92b26fa8adc30543fe5a6e74",
+      "currency": "BTC",
+      "associated_handles": [
+        "viper772"
+      ],
+      "first_seen": "2024-06-25T00:00:00"
+    },
+    {
+      "address": "450eed40ef171cc2784d638b34fa781359331a3ed13a32e97cc31667baf165d337643e7d80fdfed273606f4c76ff8b2",
+      "currency": "XMR",
+      "associated_handles": [
+        "ghostcrypt232"
+      ],
+      "first_seen": "2024-09-17T00:00:00"
+    },
+    {
+      "address": "bc1q84fc8a8e1e4eb2435ad84e0ad052f27b81fb20",
+      "currency": "BTC",
+      "associated_handles": [
+        "nullbyte606"
+      ],
+      "first_seen": "2024-03-05T00:00:00"
+    },
+    {
+      "address": "4a6f8f1f2f416b598694b0e8bba51a55db4466426fae9480469a7737ec218a5dca33037d16a3b73a0cc162f803d7caf",
+      "currency": "XMR",
+      "associated_handles": [
+        "darkphoenix334"
+      ],
+      "first_seen": "2024-06-07T00:00:00"
+    },
+    {
+      "address": "bc1q7476acbdef8e9a16d24575e4f6d7b0f31f003d",
+      "currency": "BTC",
+      "associated_handles": [
+        "silkworm166"
+      ],
+      "first_seen": "2024-04-26T00:00:00"
+    },
+    {
+      "address": "4c876b4dd1e37960d23c5eb40f1b7cba7c13b49786b5b441318c237bf841332084f8b2d7d97720f7d61a0294f1c9c38",
+      "currency": "XMR",
+      "associated_handles": [
+        "zeroday940"
+      ],
+      "first_seen": "2024-06-18T00:00:00"
+    },
+    {
+      "address": "bc1q106541fd9ffa40c7ae29a7155ad5b4fd8755f6",
+      "currency": "BTC",
+      "associated_handles": [
+        "blackmamba854"
+      ],
+      "first_seen": "2023-09-28T00:00:00"
+    },
+    {
+      "address": "bc1qd449f728588753b93c0bbc6adf7089dd787b6a",
+      "currency": "BTC",
+      "associated_handles": [
+        "cryptking86"
+      ],
+      "first_seen": "2024-07-29T00:00:00"
+    },
+    {
+      "address": "bc1q7481ff4fb74fd1654b0d60dcfebdec3c334cca",
+      "currency": "BTC",
+      "associated_handles": [
+        "neonshade653"
+      ],
+      "first_seen": "2024-04-13T00:00:00"
+    },
+    {
+      "address": "bc1qf59aa7ba100f13865fb89bead9f4b3735f5ea0",
+      "currency": "BTC",
+      "associated_handles": [
+        "phantomx204"
+      ],
+      "first_seen": "2024-07-25T00:00:00"
+    },
+    {
+      "address": "bc1q4a0fd61b7e52299b69486c1ae8d6e6d6b554fa",
+      "currency": "BTC",
+      "associated_handles": [
+        "ironcloak78"
+      ],
+      "first_seen": "2024-09-16T00:00:00"
+    },
+    {
+      "address": "bc1q62a0b3655bc91029a4a774c164a7a069043245",
+      "currency": "BTC",
+      "associated_handles": [
+        "bytebandit519"
+      ],
+      "first_seen": "2024-05-14T00:00:00"
+    },
+    {
+      "address": "bc1q8f7cdf1a0bf895e6ca0a55864df921ae4aa2b1",
+      "currency": "BTC",
+      "associated_handles": [
+        "spectre780"
+      ],
+      "first_seen": "2024-01-01T00:00:00"
+    },
+    {
+      "address": "bc1q8f7cdf1a0bf895e6ca0a55864df921ae4aa2b1",
+      "currency": "BTC",
+      "associated_handles": [
+        "wraithseller326"
+      ],
+      "first_seen": "2024-03-07T00:00:00"
+    },
+    {
+      "address": "bc1q23a5f0275712554f028e1cb39bf3212bfcffab",
+      "currency": "BTC",
+      "associated_handles": [
+        "acidrain879"
+      ],
+      "first_seen": "2024-06-08T00:00:00"
+    },
+    {
+      "address": "bc1q4c667f52b5c4166f241547b277be96ac0a68b2",
+      "currency": "BTC",
+      "associated_handles": [
+        "voltdrop565"
+      ],
+      "first_seen": "2023-11-29T00:00:00"
+    },
+    {
+      "address": "bc1q5bbdf258574314693d2595c78740f8f3507ea7",
+      "currency": "BTC",
+      "associated_handles": [
+        "deepstate529"
+      ],
+      "first_seen": "2024-05-02T00:00:00"
+    },
+    {
+      "address": "bc1q5bbdf258574314693d2595c78740f8f3507ea7",
+      "currency": "BTC",
+      "associated_handles": [
+        "shadowgov548"
+      ],
+      "first_seen": "2024-05-30T00:00:00"
+    },
+    {
+      "address": "bc1q091f4f87fd7312742bc9c2ded81a225343cf4b",
+      "currency": "BTC",
+      "associated_handles": [
+        "venomstrike345"
+      ],
+      "first_seen": "2023-12-15T00:00:00"
+    },
+    {
+      "address": "bc1q091f4f87fd7312742bc9c2ded81a225343cf4b",
+      "currency": "BTC",
+      "associated_handles": [
+        "cobrafang744"
+      ],
+      "first_seen": "2023-09-29T00:00:00"
+    },
+    {
+      "address": "bc1q8d354eb1c6ce03109b0b633d084db59a542a34",
+      "currency": "BTC",
+      "associated_handles": [
+        "mirrorman535"
+      ],
+      "first_seen": "2024-02-01T00:00:00"
+    },
+    {
+      "address": "bc1qf0ef1f7393e8c6854871f7de569324e96256d7",
+      "currency": "BTC",
+      "associated_handles": [
+        "glasswalker580"
+      ],
+      "first_seen": "2024-06-21T00:00:00"
+    },
+    {
+      "address": "bc1q945c1f73b4d1fa0667ab1da5ffee3eb94ea48a",
+      "currency": "BTC",
+      "associated_handles": [
+        "dustdevil999"
+      ],
+      "first_seen": "2024-04-01T00:00:00"
+    },
+    {
+      "address": "bc1qb51045422786051956461eef9262471667143a",
+      "currency": "BTC",
+      "associated_handles": [
+        "sandstorm961"
+      ],
+      "first_seen": "2024-04-10T00:00:00"
+    }
+  ],
+  "trust_links": [
+    {
+      "source_handle": "spectre780",
+      "target_handle": "acidrain879",
+      "link_type": "review",
+      "timestamp": "2024-06-28T00:00:00",
+      "context": "Review from spectre780 to acidrain879"
+    },
+    {
+      "source_handle": "wraithseller326",
+      "target_handle": "voltdrop565",
+      "link_type": "vouch",
+      "timestamp": "2024-08-17T00:00:00",
+      "context": "Vouch from wraithseller326 to voltdrop565"
+    },
+    {
+      "source_handle": "viper772",
+      "target_handle": "ghostcrypt232",
+      "link_type": "vouch",
+      "timestamp": "2024-09-10T00:00:00",
+      "context": "Vouch from viper772 to ghostcrypt232"
+    },
+    {
+      "source_handle": "nullbyte606",
+      "target_handle": "darkphoenix334",
+      "link_type": "review",
+      "timestamp": "2024-11-06T00:00:00",
+      "context": "Review from nullbyte606 to darkphoenix334"
+    },
+    {
+      "source_handle": "silkworm166",
+      "target_handle": "zeroday940",
+      "link_type": "review",
+      "timestamp": "2024-08-24T00:00:00",
+      "context": "Review from silkworm166 to zeroday940"
+    },
+    {
+      "source_handle": "blackmamba854",
+      "target_handle": "cryptking86",
+      "link_type": "review",
+      "timestamp": "2024-08-25T00:00:00",
+      "context": "Review from blackmamba854 to cryptking86"
+    },
+    {
+      "source_handle": "neonshade653",
+      "target_handle": "phantomx204",
+      "link_type": "review",
+      "timestamp": "2024-11-14T00:00:00",
+      "context": "Review from neonshade653 to phantomx204"
+    },
+    {
+      "source_handle": "ironcloak78",
+      "target_handle": "bytebandit519",
+      "link_type": "referral",
+      "timestamp": "2024-07-05T00:00:00",
+      "context": "Referral from ironcloak78 to bytebandit519"
+    },
+    {
+      "source_handle": "mirrorman535",
+      "target_handle": "glasswalker580",
+      "link_type": "review",
+      "timestamp": "2024-08-22T00:00:00",
+      "context": "Review from mirrorman535 to glasswalker580"
+    },
+    {
+      "source_handle": "dustdevil999",
+      "target_handle": "sandstorm961",
+      "link_type": "referral",
+      "timestamp": "2024-11-25T00:00:00",
+      "context": "Referral from dustdevil999 to sandstorm961"
+    },
+    {
+      "source_handle": "viper772",
+      "target_handle": "spectre780",
+      "link_type": "vouch",
+      "timestamp": "2024-10-01T00:00:00",
+      "context": "Vouch from viper772 to spectre780"
+    },
+    {
+      "source_handle": "ghostcrypt232",
+      "target_handle": "deepstate529",
+      "link_type": "review",
+      "timestamp": "2024-07-16T00:00:00",
+      "context": "Review from ghostcrypt232 to deepstate529"
+    },
+    {
+      "source_handle": "nullbyte606",
+      "target_handle": "venomstrike345",
+      "link_type": "review",
+      "timestamp": "2024-08-21T00:00:00",
+      "context": "Review from nullbyte606 to venomstrike345"
+    },
+    {
+      "source_handle": "spectre780",
+      "target_handle": "sandstorm961",
+      "link_type": "transaction",
+      "timestamp": "2025-02-12T00:00:00",
+      "context": "Transaction between spectre780 and sandstorm961"
+    },
+    {
+      "source_handle": "glasswalker580",
+      "target_handle": "cobrafang744",
+      "link_type": "transaction",
+      "timestamp": "2024-05-29T00:00:00",
+      "context": "Transaction between glasswalker580 and cobrafang744"
+    },
+    {
+      "source_handle": "ironcloak78",
+      "target_handle": "cobrafang744",
+      "link_type": "transaction",
+      "timestamp": "2025-03-01T00:00:00",
+      "context": "Transaction between ironcloak78 and cobrafang744"
+    },
+    {
+      "source_handle": "acidrain879",
+      "target_handle": "bytebandit519",
+      "link_type": "transaction",
+      "timestamp": "2024-12-20T00:00:00",
+      "context": "Transaction between acidrain879 and bytebandit519"
+    },
+    {
+      "source_handle": "deepstate529",
+      "target_handle": "venomstrike345",
+      "link_type": "transaction",
+      "timestamp": "2024-02-05T00:00:00",
+      "context": "Transaction between deepstate529 and venomstrike345"
+    },
+    {
+      "source_handle": "spectre780",
+      "target_handle": "bytebandit519",
+      "link_type": "transaction",
+      "timestamp": "2025-02-23T00:00:00",
+      "context": "Transaction between spectre780 and bytebandit519"
+    },
+    {
+      "source_handle": "shadowgov548",
+      "target_handle": "bytebandit519",
+      "link_type": "transaction",
+      "timestamp": "2025-03-10T00:00:00",
+      "context": "Transaction between shadowgov548 and bytebandit519"
+    },
+    {
+      "source_handle": "deepstate529",
+      "target_handle": "zeroday940",
+      "link_type": "transaction",
+      "timestamp": "2025-02-11T00:00:00",
+      "context": "Transaction between deepstate529 and zeroday940"
+    },
+    {
+      "source_handle": "zeroday940",
+      "target_handle": "ghostcrypt232",
+      "link_type": "transaction",
+      "timestamp": "2025-02-11T00:00:00",
+      "context": "Transaction between zeroday940 and ghostcrypt232"
+    },
+    {
+      "source_handle": "neonshade653",
+      "target_handle": "glasswalker580",
+      "link_type": "transaction",
+      "timestamp": "2024-07-28T00:00:00",
+      "context": "Transaction between neonshade653 and glasswalker580"
+    },
+    {
+      "source_handle": "neonshade653",
+      "target_handle": "viper772",
+      "link_type": "transaction",
+      "timestamp": "2024-12-10T00:00:00",
+      "context": "Transaction between neonshade653 and viper772"
+    },
+    {
+      "source_handle": "ghostcrypt232",
+      "target_handle": "zeroday940",
+      "link_type": "transaction",
+      "timestamp": "2024-09-12T00:00:00",
+      "context": "Transaction between ghostcrypt232 and zeroday940"
+    },
+    {
+      "source_handle": "mirrorman535",
+      "target_handle": "spectre780",
+      "link_type": "transaction",
+      "timestamp": "2024-03-12T00:00:00",
+      "context": "Transaction between mirrorman535 and spectre780"
+    },
+    {
+      "source_handle": "phantomx204",
+      "target_handle": "cryptking86",
+      "link_type": "transaction",
+      "timestamp": "2024-11-20T00:00:00",
+      "context": "Transaction between phantomx204 and cryptking86"
+    },
+    {
+      "source_handle": "cobrafang744",
+      "target_handle": "bytebandit519",
+      "link_type": "transaction",
+      "timestamp": "2024-06-04T00:00:00",
+      "context": "Transaction between cobrafang744 and bytebandit519"
+    }
+  ],
+  "ground_truth_clusters": {
+    "ACTOR_001": [
+      "viper772"
+    ],
+    "ACTOR_002": [
+      "ghostcrypt232"
+    ],
+    "ACTOR_003": [
+      "nullbyte606"
+    ],
+    "ACTOR_004": [
+      "darkphoenix334"
+    ],
+    "ACTOR_005": [
+      "silkworm166"
+    ],
+    "ACTOR_006": [
+      "zeroday940"
+    ],
+    "ACTOR_007": [
+      "blackmamba854"
+    ],
+    "ACTOR_008": [
+      "cryptking86"
+    ],
+    "ACTOR_009": [
+      "neonshade653"
+    ],
+    "ACTOR_010": [
+      "phantomx204"
+    ],
+    "ACTOR_011": [
+      "ironcloak78"
+    ],
+    "ACTOR_012": [
+      "bytebandit519"
+    ],
+    "ACTOR_R01": [
+      "spectre780",
+      "wraithseller326"
+    ],
+    "ACTOR_R02": [
+      "acidrain879",
+      "voltdrop565"
+    ],
+    "ACTOR_R03": [
+      "deepstate529",
+      "shadowgov548"
+    ],
+    "ACTOR_R04": [
+      "venomstrike345",
+      "cobrafang744"
+    ],
+    "ACTOR_A01_mirrorman535": [
+      "mirrorman535"
+    ],
+    "ACTOR_A01_glasswalker580": [
+      "glasswalker580"
+    ],
+    "ACTOR_A02_dustdevil999": [
+      "dustdevil999"
+    ],
+    "ACTOR_A02_sandstorm961": [
+      "sandstorm961"
+    ]
+  }
+}
