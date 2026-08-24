@@ -152,26 +152,40 @@ Outputs `data/entity_graph_output.json`.
   ```
 
 ### 3.6 Supervised Machine Learning Link Prediction Model (`model_trainer.py`)
-In addition to deterministic graph traversal, Module 2 includes a **Trainable Graph Machine Learning Link Prediction Model** (trained using Random Forest & XGBoost classifiers with 5-Fold Stratified Cross-Validation):
+Module 2 provides a **Supervised Graph Machine Learning Link Prediction Model** trained under a strict **Edge-Holdout Evaluation Protocol** to genuinely predict unseen relationships without graph feature leakage.
 
-* **Topological & Behavioral Feature Vectors ($d=16$)**:
-  1. `path_confidence` — Multi-hop confidence decay along the traversal chain.
-  2. `jaccard_coefficient` — Neighborhood Jaccard similarity: $\frac{|\Gamma(u) \cap \Gamma(v)|}{|\Gamma(u) \cup \Gamma(v)|}$.
-  3. `same_community` — Binary indicator ($1/0$) of co-membership in the same Louvain cluster.
-  4. `graph_link_strength` — Non-linear multi-path redundancy score.
-  5. `market_overlap_count` & `market_jaccard` — Darknet marketplace footprint overlap.
-  6. `adamic_adar_index` — Frequency-weighted common neighbor score: $\sum_{w} \frac{1}{\log |\Gamma(w)|}$.
-  7. `resource_allocation_index` — Resource transfer metric: $\sum_{w} \frac{1}{|\Gamma(w)|}$.
-  8. `preferential_attachment` — Scale-free degree interaction: $|\Gamma(u)| \times |\Gamma(v)|$.
-  9. `degree_ratio` & `degree_diff` — Centrality disparity measures.
+#### ⚠️ Audit Note: Legacy Metric Invalidation
+* **Previous Row-Split Metric (~0.97 ROC-AUC)**: **INVALID / LEAKED**.
+  * *Why*: In the preliminary prototype, features were generated on the full graph prior to row-level splitting, which allowed shortest-path and neighborhood algorithms to observe the direct target edges being predicted.
+* **Current Edge-Holdout Metric (Strict Zero-Leakage)**: **VALID & SCIENTIFICALLY SOUND**.
+  * *Edge-Holdout Protocol*: The 1,475 ground-truth entity relationships are split 80% ($N=1,180$) into $G_{\text{train}}$ and 20% ($N=295$) held out into $G_{\text{test}}$.
+  * *Zero Leakage*: $G_{\text{train}}$ contains 0 held-out test relationships (neither forward nor reverse).
+  * *Candidate Edge Masking*: During training feature extraction on $G_{\text{train}}$, candidate edges are dynamically masked to eliminate direct length-1 path shortcuts.
+  * *Isolated Community Detection*: Louvain community partitions are generated strictly on $G_{\text{train}}$.
 
-* **Model Performance Metrics (Validated on Hold-Out Test Set)**:
-  - **ROC-AUC Score**: **`0.9765`** (5-Fold Cross-Validation: **`0.9648`** $\pm 0.0047$)
-  - **Precision**: **`0.9447`**
-  - **Recall**: **`0.8880`**
-  - **F1-Score**: **`0.9155`**
-  - **PR-AUC (Average Precision)**: **`0.9787`**
-  - **Serialized Model Artifact**: Saved to [`data/link_prediction_model.pkl`](file:///c:/Users/savag/Downloads/De-Anonymity/data/link_prediction_model.pkl) and metrics to [`data/model_metrics.json`](file:///c:/Users/savag/Downloads/De-Anonymity/data/model_metrics.json).
+#### Topological & Behavioral Feature Vectors ($d=17$):
+1. `same_community` (43.6%) — Louvain syndicate co-membership on $G_{\text{train}}$.
+2. `graph_link_strength` (6.3%) — Non-linear multi-path redundancy score.
+3. `path_confidence` (6.0%) — Multiplicative confidence along indirect paths.
+4. `preferential_attachment` (5.4%) — Scale-free degree interaction: $|\Gamma(u)| \times |\Gamma(v)|$.
+5. `shortest_path_length` (5.4%) — Indirect path distance in $G_{\text{train}}$ (excluding target edge).
+6. `degree_v`, `degree_u`, `degree_ratio`, `degree_diff` — Centrality and degree disparity measures.
+7. `adamic_adar_index` & `resource_allocation_index` — Frequency-weighted resource transfer metrics.
+8. `market_jaccard` & `market_overlap_count` — Darknet marketplace footprint overlap.
+9. `jaccard_coefficient` & `common_neighbors_count` — Neighborhood overlap metrics.
+
+#### Genuine Unseen Link Prediction Benchmark Results (Hold-Out Test Set):
+* **Model Selected**: `RandomForestClassifier` (100 estimators, max depth 8)
+* **Confusion Matrix**: $[[\text{TN}=261, \text{FP}=34], [\text{FN}=189, \text{TP}=106]]$
+* **Accuracy**: **`62.20%`**
+* **Precision**: **`75.71%`** (High precision: 3 out of 4 predicted links are genuine threat actor collaborations)
+* **Recall (Sensitivity)**: **`35.93%`**
+* **Specificity**: **`88.47%`** (Strong ability to filter out unrelated entity pairs)
+* **F1-Score**: **`0.4874`**
+* **Matthews Correlation Coefficient (MCC)**: **`0.2869`**
+* **ROC-AUC Score**: **`0.6394`** (5-Fold Edge Cross-Validation: **`0.6571`** $\pm 0.0173$)
+* **PR-AUC (Average Precision)**: **`0.6719`**
+* **Artifacts**: Serialized model in [`data/link_prediction_model.pkl`](file:///c:/Users/savag/Downloads/De-Anonymity/data/link_prediction_model.pkl), metrics in [`data/model_metrics.json`](file:///c:/Users/savag/Downloads/De-Anonymity/data/model_metrics.json).
 
 ---
 

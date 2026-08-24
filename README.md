@@ -1,4 +1,4 @@
-# Module 2: Entity Relationship Graph (SIH26151)
+# Module 2: Evaluated Link-Prediction Model (SIH26151)
 
 Dark Web Threat Actor De-anonymization — Entity graph that maps personas across marketplaces via shared PGP keys, wallet addresses, and trust/vouch links.
 
@@ -9,34 +9,30 @@ Dark Web Threat Actor De-anonymization — Entity graph that maps personas acros
 3. **Builds** a NetworkX MultiDiGraph with cross-entity edges (VOUCHED_FOR, CO_OCCURRED_IN_THREAD, TRANSACTED_WITH)
 4. **Traverses** the graph to find indirect connections (2-3 hops) between entities that never directly interacted
 5. **Scores** each connection with `path_confidence` (multiplicative decay) and `graph_link_strength` (path count + best confidence)
-6. **Exports** `entity_graph_output.json` — pairwise scores for Fusion + full graph for Dashboard
+6. **Trains and evaluates** a supervised link-prediction model with reproducible metrics
 
 ## Quick Start
 
 ```bash
 pip install -r requirements.txt
 
-# Run the full pipeline: build graph -> validate -> export
-python main.py
-
-# Train the supervised ML Link Prediction Model (Random Forest / XGBoost with 5-fold CV)
-python model_trainer.py
-# Or via main CLI:
+# Run the full graph pipeline and train/evaluate the model
 python main.py --train-ml
 
-# Run with interactive dashboard visualization
-python main.py --serve
+# Or train/evaluate the model directly
+python model_trainer.py
 ```
 
 ## Machine Learning Link Prediction Model (`model_trainer.py`)
 
-Module 2 includes a **Supervised Graph ML Model** that learns topological and behavioral patterns:
-- **Algorithms**: Random Forest (100 estimators) & XGBoost Classifier
-- **Features Extracted ($d=16$)**: Jaccard Coefficient, Adamic-Adar Index, Resource Allocation Index, Preferential Attachment, Louvain Community Co-membership, Marketplace Overlap, Degree Centralities, and Multi-Hop Path Confidence
-- **Performance**:
-  - **ROC-AUC**: `0.9765` (5-Fold CV: `0.9648`)
-  - **Precision**: `0.9447` | **Recall**: `0.8880` | **F1-Score**: `0.9155`
-  - **PR-AUC**: `0.9787`
+Module 2 includes a **Supervised Graph ML Model** evaluated under a strict **Edge-Holdout Evaluation Protocol** (zero graph feature leakage):
+- **Algorithm**: Random Forest Classifier (100 estimators, max depth 8)
+- **Features Extracted ($d=17$)**: Louvain Community co-membership on $G_{\text{train}}$, Multi-Hop Path Confidence, Graph Link Strength, Preferential Attachment, Shortest Path distance (masked), Adamic-Adar Index, Resource Allocation Index, Degree Disparity, and Darknet Marketplace Jaccard similarity.
+- **Genuine Unseen Link Prediction Performance (20% Edge Hold-Out)**:
+  - **ROC-AUC Score**: `0.6394` (5-Fold Graph-Aware CV: `0.6571` $\pm 0.0173$)
+  - **Precision**: `0.7571` (75.71% of predicted links are true darknet collaborations)
+  - **Specificity**: `0.8847` | **Accuracy**: `0.6220` | **Recall**: `0.3593` | **F1-Score**: `0.4874`
+  - **Average Precision (PR-AUC)**: `0.6719`
 - **Output Artifacts**: `data/link_prediction_model.pkl` & `data/model_metrics.json`
 
 ## Output
@@ -71,7 +67,8 @@ G = engine.get_graph()  # Returns networkx.MultiDiGraph
 
 | File | Purpose |
 |------|---------|
-| `main.py` | Pipeline entry point |
+| `main.py` | Pipeline entry point and model-training CLI |
+| `model_trainer.py` | Supervised link-prediction training, evaluation, and inference helper |
 | `graph_engine.py` | Graph construction + canonical entity collapse |
 | `traversal.py` | Multi-hop path finding + scoring |
 | `export.py` | JSON export in locked schema |
