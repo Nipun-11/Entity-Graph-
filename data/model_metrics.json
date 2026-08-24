@@ -107,11 +107,11 @@
     "test_negatives": 295
   },
   "execution_timings_seconds": {
-    "train_feature_time": 9.739,
-    "test_feature_time": 2.699,
-    "model_train_time": 0.831,
-    "eval_time": 0.033,
-    "total_pipeline_time": 13.303
+    "train_feature_time": 6.828,
+    "test_feature_time": 2.219,
+    "model_train_time": 0.3,
+    "eval_time": 0.032,
+    "total_pipeline_time": 9.379
   },
   "leakage_audit_status": {
     "edge_holdout_enforced": true,
