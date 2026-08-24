@@ -1,57 +1,47 @@
 /**
- * app.js — D3.js Force-Directed Graph Visualization
- * ====================================================
- * Interactive entity relationship graph with:
- *   - Force-directed layout
- *   - Node color coding by type
- *   - Animated SAME_ACTOR_AS edges
- *   - Click-to-inspect detail panel
- *   - Search functionality
- *   - Cluster highlighting
- *   - Export actions
+ * app.js — D3.js Force-Directed Graph Visualization for Canonical Entity Graph
+ * ==============================================================================
+ * Interactive visualization of 500 canonical threat actor entities, 1,482 cross-market
+ * relationships, Louvain community clusters, and multi-hop traversal paths.
  */
 
 // ---------------------------------------------------------------------------
-// Configuration
+// Configuration & Color Palettes
 // ---------------------------------------------------------------------------
 
 const API_BASE = window.location.origin;
 
-const NODE_COLORS = {
-    Handle: '#6c8cff',
-    PGPKey: '#34d399',
-    Wallet: '#fb923c',
-    Marketplace: '#c084fc',
-    Actor: '#f472b6',
-};
+// 24 distinct HSL-tailored colors for Louvain communities
+const COMMUNITY_COLORS = [
+    '#6366f1', '#ec4899', '#14b8a6', '#f59e0b', '#8b5cf6',
+    '#06b6d4', '#10b981', '#f97316', '#3b82f6', '#d946ef',
+    '#84cc16', '#e11d48', '#22c55e', '#a855f7', '#eab308',
+    '#0284c7', '#4ade80', '#fb7185', '#2dd4bf', '#c084fc',
+    '#fb923c', '#38bdf8', '#a3e635', '#f43f5e'
+];
 
-const NODE_SIZES = {
-    Handle: 10,
-    PGPKey: 8,
-    Wallet: 8,
-    Marketplace: 12,
-    Actor: 6,
-};
-
-const EDGE_CLASSES = {
-    SAME_ACTOR_AS: 'same-actor',
-    USES: 'uses',
-    VOUCHED_BY: 'trust',
-    TRANSACTED_WITH: 'trust',
-    POSTS_ON: 'posts-on',
+const EDGE_COLORS = {
+    'VOUCHED_FOR': '#6366f1',
+    'TRANSACTED_WITH': '#06b6d4',
+    'CO_OCCURRED_IN_THREAD': '#f59e0b',
+    'PATH_HIGHLIGHT': '#f43f5e'
 };
 
 // ---------------------------------------------------------------------------
-// State
+// Global State
 // ---------------------------------------------------------------------------
 
-let graphData = null;
-let clusterData = null;
+let fullGraphData = { nodes: [], edges: [] };
+let communitiesData = [];
+let pairwiseData = [];
+let statsData = {};
+
 let simulation = null;
 let svg, g, linkGroup, nodeGroup, labelGroup;
 let zoom;
-let selectedNode = null;
-let highlightedCluster = null;
+let selectedEntityId = null;
+let activeCommunityId = null;
+let activePathEntities = null;
 
 // ---------------------------------------------------------------------------
 // Initialization
@@ -59,77 +49,128 @@ let highlightedCluster = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     initSVG();
-    await loadData();
-    initSearch();
     initControls();
+    await loadAllData();
+    initSearch();
     initExport();
 });
 
 function initSVG() {
     svg = d3.select('#graph-svg');
     const container = document.getElementById('graph-container');
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    const width = container.clientWidth || 900;
+    const height = container.clientHeight || 700;
 
     svg.attr('viewBox', [0, 0, width, height]);
 
-    // Zoom behavior
     zoom = d3.zoom()
-        .scaleExtent([0.1, 5])
+        .scaleExtent([0.05, 8])
         .on('zoom', (event) => {
             g.attr('transform', event.transform);
         });
 
     svg.call(zoom);
 
-    // Main group for graph elements
+    // Main canvas groups
     g = svg.append('g');
     linkGroup = g.append('g').attr('class', 'links');
     nodeGroup = g.append('g').attr('class', 'nodes');
     labelGroup = g.append('g').attr('class', 'labels');
 
-    // Arrowhead marker for directed edges
-    svg.append('defs').append('marker')
-        .attr('id', 'arrowhead')
-        .attr('viewBox', '0 -5 10 10')
-        .attr('refX', 20)
-        .attr('refY', 0)
-        .attr('markerWidth', 6)
-        .attr('markerHeight', 6)
-        .attr('orient', 'auto')
-        .append('path')
-        .attr('d', 'M0,-5L10,0L0,5')
-        .attr('fill', '#4a5080');
+    // Canvas click deselects
+    svg.on('click', () => {
+        deselectNode();
+    });
 }
 
-async function loadData() {
+// ---------------------------------------------------------------------------
+// Data Loading
+// ---------------------------------------------------------------------------
+
+async function loadAllData() {
     try {
-        // Fetch graph and cluster data
-        const [graphRes, clusterRes] = await Promise.all([
+        const [graphRes, statsRes, commRes, pairRes] = await Promise.allSettled([
             fetch(`${API_BASE}/api/graph`),
-            fetch(`${API_BASE}/api/clusters`),
+            fetch(`${API_BASE}/api/stats`),
+            fetch(`${API_BASE}/api/communities`),
+            fetch(`${API_BASE}/api/pairwise?limit=100`)
         ]);
 
-        graphData = await graphRes.json();
-        clusterData = await clusterRes.json();
+        if (graphRes.status === 'fulfilled' && graphRes.value.ok) {
+            fullGraphData = await graphRes.value.json();
+        } else {
+            throw new Error('Could not fetch /api/graph');
+        }
 
-        // Update stats
-        updateStats(graphData.stats);
+        if (statsRes.status === 'fulfilled' && statsRes.value.ok) {
+            statsData = await statsRes.value.json();
+            updateStats(statsData);
+        }
 
-        // Render clusters sidebar
-        renderClusters(clusterData.clusters);
+        if (commRes.status === 'fulfilled' && commRes.value.ok) {
+            communitiesData = await commRes.value.json();
+        }
 
-        // Render graph
-        renderGraph(graphData);
+        if (pairRes.status === 'fulfilled' && pairRes.value.ok) {
+            pairwiseData = await pairRes.value.json();
+        }
 
-        // Hide loading overlay
+        // Map community IDs to nodes
+        mapCommunitiesToNodes();
+
+        // Render Sidebar & Graph
+        renderCommunitiesSidebar(communitiesData);
+        renderGraph(fullGraphData);
+
+        // Hide loader overlay
         document.getElementById('graph-overlay').classList.add('hidden');
+        showToast('Entity graph loaded successfully', 'success');
 
-        showToast('Graph loaded successfully', 'success');
     } catch (err) {
-        console.error('Failed to load data:', err);
-        showToast('Failed to load graph data. Make sure the server is running.', 'error');
+        console.error('Failed to load graph data:', err);
+        document.getElementById('graph-overlay').innerHTML = `
+            <div style="text-align:center; color:#f87171; padding:20px;">
+                <h3>Failed to load graph</h3>
+                <p style="color:#9ca3af; margin-top:8px;">${err.message}</p>
+            </div>
+        `;
+        showToast('Error loading graph. Check server.', 'error');
     }
+}
+
+function mapCommunitiesToNodes() {
+    const nodeCommMap = new Map();
+    communitiesData.forEach((comm, idx) => {
+        if (comm.members) {
+            comm.members.forEach(m => {
+                nodeCommMap.set(m.entity_id, idx);
+            });
+        }
+    });
+
+    fullGraphData.nodes.forEach(n => {
+        n.id = n.entity_id; // Normalize id
+        n.community = nodeCommMap.get(n.entity_id) ?? 0;
+        n.color = COMMUNITY_COLORS[n.community % COMMUNITY_COLORS.length];
+        n.degree = 0;
+    });
+
+    // Compute degrees for sizing
+    const nodeMap = new Map(fullGraphData.nodes.map(n => [n.id, n]));
+    fullGraphData.edges.forEach(e => {
+        const u = nodeMap.get(typeof e.source === 'object' ? e.source.id : e.source);
+        const v = nodeMap.get(typeof e.target === 'object' ? e.target.id : e.target);
+        if (u) u.degree = (u.degree || 0) + 1;
+        if (v) v.degree = (v.degree || 0) + 1;
+    });
+}
+
+function updateStats(stats) {
+    if (!stats) return;
+    if (document.getElementById('stat-nodes')) document.getElementById('stat-nodes').textContent = stats.total_entities ?? '500';
+    if (document.getElementById('stat-edges')) document.getElementById('stat-edges').textContent = stats.total_graph_edges ?? '1,482';
+    if (document.getElementById('stat-handles')) document.getElementById('stat-handles').textContent = stats.total_personas ?? '1,833';
+    if (document.getElementById('stat-clusters')) document.getElementById('stat-clusters').textContent = stats.connected_components ?? '23';
 }
 
 // ---------------------------------------------------------------------------
@@ -138,43 +179,45 @@ async function loadData() {
 
 function renderGraph(data) {
     const container = document.getElementById('graph-container');
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    const width = container.clientWidth || 900;
+    const height = container.clientHeight || 700;
 
-    // Deduplicate edges (keep one per source-target-type)
-    const edgeMap = new Map();
-    data.edges.forEach(e => {
-        const key = `${e.source}-${e.target}-${e.edge_type}`;
-        if (!edgeMap.has(key)) {
-            edgeMap.set(key, e);
-        }
-    });
-    const edges = Array.from(edgeMap.values());
+    const nodeMap = new Map(data.nodes.map(d => [d.id, d]));
 
-    // Create node map
-    const nodeMap = new Map();
-    data.nodes.forEach(n => nodeMap.set(n.id, n));
+    // Filter valid edges
+    const validEdges = data.edges.filter(e => {
+        const s = typeof e.source === 'object' ? e.source.id : e.source;
+        const t = typeof e.target === 'object' ? e.target.id : e.target;
+        return nodeMap.has(s) && nodeMap.has(t);
+    }).map(e => ({
+        ...e,
+        source: typeof e.source === 'object' ? e.source.id : e.source,
+        target: typeof e.target === 'object' ? e.target.id : e.target
+    }));
 
-    // Filter edges to only include those with valid source/target
-    const validEdges = edges.filter(e =>
-        nodeMap.has(e.source) && nodeMap.has(e.target)
-    );
-
-    // Create links
+    // Links
     const links = linkGroup.selectAll('.link-line')
-        .data(validEdges, d => `${d.source}-${d.target}-${d.edge_type}`)
+        .data(validEdges, d => `${d.source}-${d.target}-${d.relation_type}`)
         .join('line')
-        .attr('class', d => `link-line ${EDGE_CLASSES[d.edge_type] || 'uses'}`)
-        .attr('stroke-width', d => d.edge_type === 'SAME_ACTOR_AS' ? 2.5 : 1.2);
+        .attr('class', 'link-line')
+        .attr('stroke', d => EDGE_COLORS[d.relation_type] || '#4a5080')
+        .attr('stroke-width', d => Math.max(1, (d.confidence || 0.5) * 2.2))
+        .attr('stroke-opacity', 0.55);
 
-    // Create nodes
+    // Nodes
     const nodes = nodeGroup.selectAll('.node-circle')
         .data(data.nodes, d => d.id)
         .join('circle')
         .attr('class', 'node-circle')
-        .attr('r', d => NODE_SIZES[d.node_type] || 8)
-        .attr('fill', d => NODE_COLORS[d.node_type] || '#6b7280')
-        .attr('stroke', d => d3.color(NODE_COLORS[d.node_type] || '#6b7280').darker(0.5))
+        .attr('r', d => {
+            const baseSize = 6;
+            const marketBonus = (d.active_marketplaces ? d.active_marketplaces.length : 1) * 1.5;
+            const degreeBonus = Math.min(6, (d.degree || 1) * 0.4);
+            return baseSize + marketBonus + degreeBonus;
+        })
+        .attr('fill', d => d.color)
+        .attr('stroke', d => d3.color(d.color).brighter(0.6))
+        .attr('stroke-width', 1.5)
         .on('click', (event, d) => {
             event.stopPropagation();
             selectNode(d);
@@ -191,41 +234,25 @@ function renderGraph(data) {
             .on('end', dragEnded)
         );
 
-    // Create labels (only for handles and marketplaces)
+    // Labels for prominent nodes (high degree or selected)
     const labels = labelGroup.selectAll('.node-label')
-        .data(data.nodes.filter(n =>
-            n.node_type === 'Handle' || n.node_type === 'Marketplace'
-        ), d => d.id)
+        .data(data.nodes.filter(n => (n.degree || 0) >= 6 || (n.active_marketplaces && n.active_marketplaces.length >= 3)), d => d.id)
         .join('text')
         .attr('class', 'node-label')
-        .text(d => d.label || d.username || d.name || '')
-        .attr('dy', d => (NODE_SIZES[d.node_type] || 8) + 12);
+        .text(d => d.handle || d.id)
+        .attr('dy', 16)
+        .attr('fill', '#e2e8f0')
+        .attr('font-size', '10px')
+        .attr('text-anchor', 'middle')
+        .attr('pointer-events', 'none');
 
-    // Force simulation
+    // Physics Simulation
     simulation = d3.forceSimulation(data.nodes)
-        .force('link', d3.forceLink(validEdges)
-            .id(d => d.id)
-            .distance(d => {
-                if (d.edge_type === 'SAME_ACTOR_AS') return 60;
-                if (d.edge_type === 'POSTS_ON') return 100;
-                return 80;
-            })
-            .strength(d => {
-                if (d.edge_type === 'SAME_ACTOR_AS') return 0.8;
-                return 0.3;
-            })
-        )
-        .force('charge', d3.forceManyBody()
-            .strength(d => {
-                if (d.node_type === 'Marketplace') return -200;
-                if (d.node_type === 'Handle') return -100;
-                return -50;
-            })
-        )
+        .force('link', d3.forceLink(validEdges).id(d => d.id).distance(55).strength(0.4))
+        .force('charge', d3.forceManyBody().strength(-90).distanceMax(350))
         .force('center', d3.forceCenter(width / 2, height / 2))
-        .force('collision', d3.forceCollide()
-            .radius(d => (NODE_SIZES[d.node_type] || 8) + 5)
-        )
+        .force('collision', d3.forceCollide().radius(d => 12 + (d.active_marketplaces ? d.active_marketplaces.length : 1) * 1.5))
+        .alphaDecay(0.028)
         .on('tick', () => {
             links
                 .attr('x1', d => d.source.x)
@@ -241,15 +268,10 @@ function renderGraph(data) {
                 .attr('x', d => d.x)
                 .attr('y', d => d.y);
         });
-
-    // Click on background to deselect
-    svg.on('click', () => {
-        deselectNode();
-    });
 }
 
 // ---------------------------------------------------------------------------
-// Interaction
+// Simulation Drag handlers
 // ---------------------------------------------------------------------------
 
 function dragStarted(event, d) {
@@ -269,435 +291,347 @@ function dragEnded(event, d) {
     d.fy = null;
 }
 
-function highlightConnected(node) {
-    const connectedIds = new Set([node.id]);
+// ---------------------------------------------------------------------------
+// Interaction & Highlighting
+// ---------------------------------------------------------------------------
 
-    graphData.edges.forEach(e => {
-        const src = typeof e.source === 'object' ? e.source.id : e.source;
-        const tgt = typeof e.target === 'object' ? e.target.id : e.target;
-        if (src === node.id) connectedIds.add(tgt);
-        if (tgt === node.id) connectedIds.add(src);
+function highlightConnected(node) {
+    if (activeCommunityId !== null || activePathEntities !== null) return;
+
+    const neighborIds = new Set([node.id]);
+
+    fullGraphData.edges.forEach(e => {
+        const s = typeof e.source === 'object' ? e.source.id : e.source;
+        const t = typeof e.target === 'object' ? e.target.id : e.target;
+        if (s === node.id) neighborIds.add(t);
+        if (t === node.id) neighborIds.add(s);
     });
 
     nodeGroup.selectAll('.node-circle')
-        .attr('opacity', d => connectedIds.has(d.id) ? 1 : 0.15);
+        .attr('opacity', d => neighborIds.has(d.id) ? 1 : 0.12);
 
     linkGroup.selectAll('.link-line')
         .attr('opacity', d => {
-            const src = typeof d.source === 'object' ? d.source.id : d.source;
-            const tgt = typeof d.target === 'object' ? d.target.id : d.target;
-            return (src === node.id || tgt === node.id) ? 1 : 0.05;
+            const s = typeof d.source === 'object' ? d.source.id : d.source;
+            const t = typeof d.target === 'object' ? d.target.id : d.target;
+            return (s === node.id || t === node.id) ? 1 : 0.04;
         });
 
     labelGroup.selectAll('.node-label')
-        .attr('opacity', d => connectedIds.has(d.id) ? 1 : 0.1);
+        .attr('opacity', d => neighborIds.has(d.id) ? 1 : 0.08);
 }
 
 function resetHighlight() {
-    if (highlightedCluster) return; // Don't reset if a cluster is active
+    if (activeCommunityId !== null || activePathEntities !== null) return;
 
     nodeGroup.selectAll('.node-circle').attr('opacity', 1);
-    linkGroup.selectAll('.link-line').attr('opacity', null);
+    linkGroup.selectAll('.link-line').attr('opacity', 0.55);
     labelGroup.selectAll('.node-label').attr('opacity', 1);
 }
 
 async function selectNode(node) {
-    selectedNode = node;
+    selectedEntityId = node.id;
 
-    // Highlight the selected node
+    // Highlight circle
     nodeGroup.selectAll('.node-circle')
-        .classed('highlighted', d => d.id === node.id);
+        .classed('highlighted', d => d.id === node.id)
+        .attr('stroke', d => d.id === node.id ? '#ffffff' : d3.color(d.color).brighter(0.6))
+        .attr('stroke-width', d => d.id === node.id ? 3.5 : 1.5);
 
-    // If it's a handle, query the API
-    if (node.node_type === 'Handle' && node.username) {
-        try {
-            const res = await fetch(`${API_BASE}/api/query?handle=${encodeURIComponent(node.username)}`);
+    // Fetch live node details and 2-hop connections from API
+    try {
+        const res = await fetch(`${API_BASE}/api/entity/${encodeURIComponent(node.id)}`);
+        if (res.ok) {
             const data = await res.json();
-            showDetail(data);
-        } catch (err) {
-            console.error('Query failed:', err);
+            renderEntityDetail(data.entity, data.connections);
+        } else {
+            renderEntityDetail(node, []);
         }
-    } else {
-        showNodeDetail(node);
+    } catch (err) {
+        renderEntityDetail(node, []);
     }
 }
 
 function deselectNode() {
-    selectedNode = null;
-    nodeGroup.selectAll('.node-circle').classed('highlighted', false);
+    selectedEntityId = null;
+    nodeGroup.selectAll('.node-circle')
+        .classed('highlighted', false)
+        .attr('stroke', d => d3.color(d.color).brighter(0.6))
+        .attr('stroke-width', 1.5);
+
     document.getElementById('detail-content').style.display = 'none';
     document.getElementById('detail-empty').style.display = 'flex';
 }
 
 // ---------------------------------------------------------------------------
-// Cluster Highlighting
+// Detail Panel Rendering
 // ---------------------------------------------------------------------------
 
-function highlightCluster(cluster) {
-    highlightedCluster = cluster;
+function renderEntityDetail(entity, connections = []) {
+    document.getElementById('detail-empty').style.display = 'none';
+    const detailContent = document.getElementById('detail-content');
+    detailContent.style.display = 'block';
 
-    // Find all node IDs that correspond to cluster handles
-    const clusterHandleIds = new Set();
-    const clusterRelatedIds = new Set();
+    document.getElementById('detail-title').textContent = entity.handle || entity.entity_id;
+    document.getElementById('detail-subtitle').textContent = entity.entity_id;
+    document.getElementById('detail-type-badge').textContent = `Community #${entity.community ?? 0}`;
+    document.getElementById('detail-type-badge').style.background = entity.color || '#6366f1';
 
-    graphData.nodes.forEach(n => {
-        if (n.node_type === 'Handle' && cluster.handles.includes(n.username)) {
-            clusterHandleIds.add(n.id);
-            clusterRelatedIds.add(n.id);
-        }
-    });
+    const markets = entity.active_marketplaces || [];
+    const personas = entity.aka_persona_ids || [];
 
-    // Also highlight connected PGP/wallet nodes
-    graphData.edges.forEach(e => {
-        const src = typeof e.source === 'object' ? e.source.id : e.source;
-        const tgt = typeof e.target === 'object' ? e.target.id : e.target;
-        if (clusterHandleIds.has(src)) clusterRelatedIds.add(tgt);
-        if (clusterHandleIds.has(tgt)) clusterRelatedIds.add(src);
-    });
-
-    nodeGroup.selectAll('.node-circle')
-        .attr('opacity', d => clusterRelatedIds.has(d.id) ? 1 : 0.1)
-        .classed('node-cluster-member', d => clusterHandleIds.has(d.id));
-
-    linkGroup.selectAll('.link-line')
-        .attr('opacity', d => {
-            const src = typeof d.source === 'object' ? d.source.id : d.source;
-            const tgt = typeof d.target === 'object' ? d.target.id : d.target;
-            return (clusterRelatedIds.has(src) && clusterRelatedIds.has(tgt)) ? 1 : 0.03;
-        });
-
-    labelGroup.selectAll('.node-label')
-        .attr('opacity', d => clusterRelatedIds.has(d.id) ? 1 : 0.05);
-
-    // Update cluster card active state
-    document.querySelectorAll('.cluster-card').forEach(card => {
-        card.classList.toggle('active', card.dataset.clusterId === cluster.cluster_id);
-    });
-}
-
-function clearClusterHighlight() {
-    highlightedCluster = null;
-
-    nodeGroup.selectAll('.node-circle')
-        .attr('opacity', 1)
-        .classed('node-cluster-member', false);
-
-    linkGroup.selectAll('.link-line')
-        .attr('opacity', null);
-
-    labelGroup.selectAll('.node-label')
-        .attr('opacity', 1);
-
-    document.querySelectorAll('.cluster-card').forEach(card => {
-        card.classList.remove('active');
-    });
-}
-
-// ---------------------------------------------------------------------------
-// Sidebar: Cluster List
-// ---------------------------------------------------------------------------
-
-function renderClusters(clusters) {
-    const list = document.getElementById('cluster-list');
-    document.getElementById('cluster-count').textContent = clusters.length;
-    list.innerHTML = '';
-
-    clusters.forEach(cluster => {
-        const card = document.createElement('div');
-        card.className = 'cluster-card';
-        card.dataset.clusterId = cluster.cluster_id;
-
-        const confClass = cluster.confidence >= 0.85 ? 'high' :
-                          cluster.confidence >= 0.5 ? 'medium' : 'low';
-
-        // Build evidence tags
-        const evidenceSet = new Set();
-        (cluster.evidence || []).forEach(e => {
-            if (e.signal === 'shared_pgp_key') evidenceSet.add('pgp');
-            else if (e.signal === 'shared_wallet') evidenceSet.add('wallet');
-            else if (e.signal === 'shared_trust_pattern') evidenceSet.add('trust');
-        });
-
-        const evidenceTags = Array.from(evidenceSet).map(type =>
-            `<span class="evidence-tag ${type}">${type.toUpperCase()}</span>`
-        ).join('');
-
-        card.innerHTML = `
-            <div class="cluster-card-header">
-                <span class="cluster-id">${cluster.cluster_id}</span>
-                <span class="confidence-badge confidence-${confClass}">
-                    ${(cluster.confidence * 100).toFixed(0)}%
-                </span>
+    const sections = document.getElementById('detail-sections');
+    sections.innerHTML = `
+        <div class="detail-section">
+            <h4>Active Darknet Markets (${markets.length})</h4>
+            <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
+                ${markets.map(m => `<span style="background:#1e293b; color:#38bdf8; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:500;">${m}</span>`).join('')}
             </div>
-            <div class="cluster-handles">
-                ${cluster.handles.map(h => `
-                    <div class="cluster-handle">
-                        <span class="dot"></span>
-                        <span class="handle-name">${h}</span>
+        </div>
+
+        <div class="detail-section">
+            <h4>Cryptographic Identifiers</h4>
+            <div style="margin-top:8px; font-family:'JetBrains Mono', monospace; font-size:11px;">
+                <div style="color:#94a3b8; margin-bottom:4px;">PGP SHA-1 Fingerprint:</div>
+                <div style="background:#0f172a; padding:6px 8px; border-radius:4px; color:#34d399; word-break:break-all;">
+                    ${entity.pgp_fingerprint || '—'}
+                </div>
+                <div style="color:#94a3b8; margin-top:8px; margin-bottom:4px;">Crypto Wallet Address:</div>
+                <div style="background:#0f172a; padding:6px 8px; border-radius:4px; color:#fb923c; word-break:break-all;">
+                    ${entity.wallet_address || '—'}
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <h4>Cross-Module Join Keys (${personas.length} Personas)</h4>
+            <p style="font-size:11px; color:#94a3b8; margin-bottom:6px;">Join keys passed to Infra & Stylometry fusion layers:</p>
+            <div style="max-height:80px; overflow-y:auto; font-family:'JetBrains Mono', monospace; font-size:11px; color:#a5b4fc; background:#0f172a; padding:6px 8px; border-radius:4px;">
+                ${personas.map(p => `<div>${p}</div>`).join('')}
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <h4>Multi-Hop Connected Entities (${connections.length})</h4>
+            <div style="max-height:140px; overflow-y:auto; margin-top:8px; display:flex; flex-direction:column; gap:6px;">
+                ${connections.map(c => `
+                    <div class="cluster-card" style="padding:6px 10px; cursor:pointer;" onclick="focusPath('${entity.entity_id}', '${c.entity_id}')">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="font-size:12px; color:#f1f5f9;">${c.entity_id}</strong>
+                            <span style="font-size:11px; color:#a855f7;">${c.distance} hop${c.distance > 1 ? 's' : ''}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:11px; color:#94a3b8; margin-top:2px;">
+                            <span>Confidence:</span>
+                            <span style="color:#34d399; font-weight:600;">${(c.path_confidence * 100).toFixed(1)}%</span>
+                        </div>
                     </div>
                 `).join('')}
             </div>
-            <div class="cluster-evidence">${evidenceTags}</div>
+        </div>
+
+        <div class="detail-section" style="margin-top:12px;">
+            <h4>Path Finder to Another Entity</h4>
+            <div style="display:flex; gap:6px; margin-top:6px;">
+                <input type="text" id="target-entity-input" placeholder="e.g. E-AzureHawk831" style="flex:1; background:#0f172a; border:1px solid #334155; color:#f8fafc; padding:6px 8px; border-radius:4px; font-size:12px;">
+                <button class="control-btn" style="padding:6px 12px; font-size:11px; width:auto;" onclick="executePathQuery('${entity.entity_id}')">Find</button>
+            </div>
+            <div id="path-result" style="margin-top:8px; font-size:11px;"></div>
+        </div>
+    `;
+}
+
+// ---------------------------------------------------------------------------
+// Path Finder Action
+// ---------------------------------------------------------------------------
+
+window.executePathQuery = async function(sourceId) {
+    const targetInput = document.getElementById('target-entity-input');
+    const targetId = targetInput ? targetInput.value.trim() : '';
+    if (!targetId) return;
+
+    const resultBox = document.getElementById('path-result');
+    resultBox.innerHTML = '<span style="color:#94a3b8;">Calculating multi-hop path...</span>';
+
+    try {
+        const res = await fetch(`${API_BASE}/api/path?source=${encodeURIComponent(sourceId)}&target=${encodeURIComponent(targetId)}`);
+        const data = await res.json();
+
+        if (data.connected && data.shortest_path && data.shortest_path.length > 0) {
+            resultBox.innerHTML = `
+                <div style="background:#0f172a; padding:8px; border-radius:4px; border-left:3px solid #34d399;">
+                    <div style="color:#34d399; font-weight:600;">Connected (${data.path_length} hops)</div>
+                    <div style="margin:4px 0; color:#e2e8f0; font-family:'JetBrains Mono', monospace; font-size:10px;">
+                        ${data.shortest_path.join(' ➔ ')}
+                    </div>
+                    <div style="display:flex; justify-content:space-between; color:#94a3b8; font-size:10px;">
+                        <span>Path Confidence: <strong style="color:#f59e0b;">${(data.path_confidence * 100).toFixed(1)}%</strong></span>
+                        <span>Link Strength: <strong style="color:#38bdf8;">${(data.graph_link_strength * 100).toFixed(1)}%</strong></span>
+                    </div>
+                </div>
+            `;
+            highlightPath(data.shortest_path);
+        } else {
+            resultBox.innerHTML = `<span style="color:#f87171;">No connection path found within 3 hops.</span>`;
+        }
+    } catch (err) {
+        resultBox.innerHTML = `<span style="color:#f87171;">Path search error.</span>`;
+    }
+};
+
+window.focusPath = function(sourceId, targetId) {
+    const input = document.getElementById('target-entity-input');
+    if (input) {
+        input.value = targetId;
+        executePathQuery(sourceId);
+    }
+};
+
+function highlightPath(pathArray) {
+    if (!pathArray || pathArray.length === 0) return;
+    activePathEntities = new Set(pathArray);
+
+    const pathEdges = new Set();
+    for (let i = 0; i < pathArray.length - 1; i++) {
+        pathEdges.add(`${pathArray[i]}-${pathArray[i+1]}`);
+        pathEdges.add(`${pathArray[i+1]}-${pathArray[i]}`);
+    }
+
+    nodeGroup.selectAll('.node-circle')
+        .attr('opacity', d => activePathEntities.has(d.id) ? 1 : 0.1)
+        .attr('stroke-width', d => activePathEntities.has(d.id) ? 3 : 1.5);
+
+    linkGroup.selectAll('.link-line')
+        .attr('opacity', d => {
+            const s = typeof d.source === 'object' ? d.source.id : d.source;
+            const t = typeof d.target === 'object' ? d.target.id : d.target;
+            return (pathEdges.has(`${s}-${t}`) || pathEdges.has(`${t}-${s}`)) ? 1 : 0.03;
+        })
+        .attr('stroke', d => {
+            const s = typeof d.source === 'object' ? d.source.id : d.source;
+            const t = typeof d.target === 'object' ? d.target.id : d.target;
+            return (pathEdges.has(`${s}-${t}`) || pathEdges.has(`${t}-${s}`)) ? '#f43f5e' : (EDGE_COLORS[d.relation_type] || '#4a5080');
+        });
+}
+
+// ---------------------------------------------------------------------------
+// Sidebar: Louvain Communities List
+// ---------------------------------------------------------------------------
+
+function renderCommunitiesSidebar(communities) {
+    const list = document.getElementById('cluster-list');
+    if (!list) return;
+
+    document.getElementById('cluster-count').textContent = communities.length;
+    list.innerHTML = '';
+
+    communities.forEach((comm, idx) => {
+        const color = COMMUNITY_COLORS[idx % COMMUNITY_COLORS.length];
+        const card = document.createElement('div');
+        card.className = 'cluster-card';
+        card.dataset.communityId = idx;
+
+        const members = comm.members || [];
+        const sampleHandles = members.slice(0, 3).map(m => m.handle || m.entity_id).join(', ');
+
+        card.innerHTML = `
+            <div class="cluster-header">
+                <span class="cluster-id" style="color:${color}; font-weight:700;">Community #${idx + 1}</span>
+                <span class="cluster-badge" style="background:${color}22; color:${color}; font-weight:600;">${comm.size} entities</span>
+            </div>
+            <div class="cluster-handles" style="font-size:11px; color:#94a3b8; margin-top:4px;">
+                ${sampleHandles}${comm.size > 3 ? '…' : ''}
+            </div>
         `;
 
         card.addEventListener('click', () => {
-            if (highlightedCluster && highlightedCluster.cluster_id === cluster.cluster_id) {
-                clearClusterHighlight();
-            } else {
-                highlightCluster(cluster);
-            }
+            toggleCommunityFilter(idx, comm);
         });
 
         list.appendChild(card);
     });
 }
 
-// ---------------------------------------------------------------------------
-// Detail Panel
-// ---------------------------------------------------------------------------
-
-function showDetail(data) {
-    if (!data.found) return;
-
-    const detailContent = document.getElementById('detail-content');
-    const detailEmpty = document.getElementById('detail-empty');
-
-    detailEmpty.style.display = 'none';
-    detailContent.style.display = 'block';
-
-    // Header
-    document.getElementById('detail-type-badge').textContent = 'Handle';
-    document.getElementById('detail-type-badge').style.background = 'rgba(108, 140, 255, 0.12)';
-    document.getElementById('detail-type-badge').style.color = '#6c8cff';
-    document.getElementById('detail-title').textContent = data.handle_info.username;
-    document.getElementById('detail-subtitle').textContent =
-        `${data.handle_info.marketplace} • ${data.handle_info.marketplace_type}`;
-
-    // Build sections
-    const sections = document.getElementById('detail-sections');
-    sections.innerHTML = '';
-
-    // Basic Info
-    sections.innerHTML += `
-        <div class="detail-section">
-            <div class="detail-section-title">Handle Info</div>
-            <div class="detail-row">
-                <span class="detail-row-label">Marketplace</span>
-                <span class="detail-row-value">${data.handle_info.marketplace || '—'}</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-row-label">Reputation</span>
-                <span class="detail-row-value">${data.handle_info.reputation_score || '—'}</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-row-label">Listings</span>
-                <span class="detail-row-value">${data.handle_info.total_listings || '—'}</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-row-label">Registered</span>
-                <span class="detail-row-value">${formatDate(data.handle_info.registered_date)}</span>
-            </div>
-        </div>
-    `;
-
-    // PGP Keys
-    if (data.linked_pgp_keys && data.linked_pgp_keys.length > 0) {
-        sections.innerHTML += `
-            <div class="detail-section">
-                <div class="detail-section-title">PGP Keys (${data.linked_pgp_keys.length})</div>
-                ${data.linked_pgp_keys.map(p => `
-                    <div class="detail-list-item">
-                        <span class="item-icon" style="background: ${NODE_COLORS.PGPKey}"></span>
-                        <span class="item-text">${p.fingerprint.substring(0, 20)}…</span>
-                        <span class="item-meta">${p.key_type || ''}</span>
-                    </div>
-                `).join('')}
-            </div>
-        `;
+function toggleCommunityFilter(commId, commObj) {
+    if (activeCommunityId === commId) {
+        // Deselect community
+        activeCommunityId = null;
+        document.querySelectorAll('.cluster-card').forEach(c => c.classList.remove('active'));
+        resetHighlight();
+        return;
     }
 
-    // Wallets
-    if (data.linked_wallets && data.linked_wallets.length > 0) {
-        sections.innerHTML += `
-            <div class="detail-section">
-                <div class="detail-section-title">Wallets (${data.linked_wallets.length})</div>
-                ${data.linked_wallets.map(w => `
-                    <div class="detail-list-item">
-                        <span class="item-icon" style="background: ${NODE_COLORS.Wallet}"></span>
-                        <span class="item-text">${w.address.substring(0, 20)}…</span>
-                        <span class="item-meta">${w.currency}</span>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    }
+    activeCommunityId = commId;
+    activePathEntities = null;
 
-    // Same-Actor Candidates
-    if (data.same_actor_candidates && data.same_actor_candidates.length > 0) {
-        const candidatesHTML = data.same_actor_candidates.map(sa => {
-            const confClass = sa.confidence >= 0.85 ? 'high' :
-                              sa.confidence >= 0.5 ? 'medium' : 'low';
-            const pct = (sa.confidence * 100).toFixed(0);
-            return `
-                <div class="detail-list-item" onclick="searchAndSelect('${sa.handle}')">
-                    <span class="item-icon" style="background: var(--color-edge-same-actor)"></span>
-                    <span class="item-text">${sa.handle}</span>
-                    <span class="confidence-badge confidence-${confClass}">${pct}%</span>
-                </div>
-                <div class="confidence-bar-container">
-                    <div class="confidence-bar">
-                        <div class="confidence-bar-fill ${confClass}" style="width: ${pct}%"></div>
-                    </div>
-                </div>
-            `;
-        }).join('');
+    document.querySelectorAll('.cluster-card').forEach(c => {
+        c.classList.toggle('active', parseInt(c.dataset.communityId) === commId);
+    });
 
-        sections.innerHTML += `
-            <div class="detail-section">
-                <div class="detail-section-title">⚡ Same-Actor Candidates</div>
-                ${candidatesHTML}
-            </div>
-        `;
-    }
+    const memberSet = new Set((commObj.members || []).map(m => m.entity_id));
 
-    // Identity Cluster
-    if (data.identity_cluster) {
-        const c = data.identity_cluster;
-        sections.innerHTML += `
-            <div class="detail-section">
-                <div class="detail-section-title">Identity Cluster: ${c.cluster_id}</div>
-                <div class="detail-row">
-                    <span class="detail-row-label">Confidence</span>
-                    <span class="detail-row-value">${(c.confidence * 100).toFixed(0)}%</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-row-label">Members</span>
-                    <span class="detail-row-value">${c.handle_count}</span>
-                </div>
-                ${c.shared_identifiers.pgp_keys.length > 0 ? `
-                    <div class="detail-row">
-                        <span class="detail-row-label">Shared PGP</span>
-                        <span class="detail-row-value">${c.shared_identifiers.pgp_keys.length}</span>
-                    </div>
-                ` : ''}
-                ${c.shared_identifiers.wallets.length > 0 ? `
-                    <div class="detail-row">
-                        <span class="detail-row-label">Shared Wallets</span>
-                        <span class="detail-row-value">${c.shared_identifiers.wallets.length}</span>
-                    </div>
-                ` : ''}
-            </div>
-        `;
-    }
+    nodeGroup.selectAll('.node-circle')
+        .attr('opacity', d => memberSet.has(d.id) ? 1 : 0.08)
+        .attr('stroke', d => memberSet.has(d.id) ? '#ffffff' : d3.color(d.color).brighter(0.6));
 
-    // Trust Links
-    if (data.trust_links && data.trust_links.length > 0) {
-        sections.innerHTML += `
-            <div class="detail-section">
-                <div class="detail-section-title">Trust Links (${data.trust_links.length})</div>
-                ${data.trust_links.slice(0, 10).map(t => `
-                    <div class="detail-list-item" onclick="searchAndSelect('${t.handle}')">
-                        <span class="item-icon" style="background: var(--color-edge-trust)"></span>
-                        <span class="item-text">${t.handle}</span>
-                        <span class="item-meta">${t.link_type} ${t.direction === 'incoming' ? '←' : '→'}</span>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    }
-}
+    linkGroup.selectAll('.link-line')
+        .attr('opacity', d => {
+            const s = typeof d.source === 'object' ? d.source.id : d.source;
+            const t = typeof d.target === 'object' ? d.target.id : d.target;
+            return (memberSet.has(s) && memberSet.has(t)) ? 0.9 : 0.02;
+        });
 
-function showNodeDetail(node) {
-    const detailContent = document.getElementById('detail-content');
-    const detailEmpty = document.getElementById('detail-empty');
-
-    detailEmpty.style.display = 'none';
-    detailContent.style.display = 'block';
-
-    const badge = document.getElementById('detail-type-badge');
-    badge.textContent = node.node_type;
-    badge.style.background = `${NODE_COLORS[node.node_type]}20`;
-    badge.style.color = NODE_COLORS[node.node_type];
-
-    document.getElementById('detail-title').textContent = node.label || node.id;
-    document.getElementById('detail-subtitle').textContent = node.node_type;
-
-    const sections = document.getElementById('detail-sections');
-    sections.innerHTML = `
-        <div class="detail-section">
-            <div class="detail-section-title">Node Properties</div>
-            ${Object.entries(node)
-                .filter(([k]) => !['id', 'x', 'y', 'vx', 'vy', 'fx', 'fy', 'index', 'label'].includes(k))
-                .map(([k, v]) => `
-                    <div class="detail-row">
-                        <span class="detail-row-label">${k}</span>
-                        <span class="detail-row-value">${truncate(String(v), 24)}</span>
-                    </div>
-                `).join('')}
-        </div>
-    `;
+    labelGroup.selectAll('.node-label')
+        .attr('opacity', d => memberSet.has(d.id) ? 1 : 0.05);
 }
 
 // ---------------------------------------------------------------------------
-// Stats
-// ---------------------------------------------------------------------------
-
-function updateStats(stats) {
-    document.getElementById('stat-nodes').textContent = stats.total_nodes || 0;
-    document.getElementById('stat-edges').textContent = stats.total_edges || 0;
-    document.getElementById('stat-handles').textContent = stats.handles || 0;
-    document.getElementById('stat-clusters').textContent = clusterData?.total || 0;
-}
-
-// ---------------------------------------------------------------------------
-// Search
+// Search Functionality
 // ---------------------------------------------------------------------------
 
 function initSearch() {
     const input = document.getElementById('search-input');
+    if (!input) return;
 
-    input.addEventListener('input', debounce((e) => {
+    input.addEventListener('input', (e) => {
         const query = e.target.value.trim().toLowerCase();
         if (!query) {
             resetHighlight();
             return;
         }
 
-        // Find matching nodes
-        const matches = graphData.nodes.filter(n => {
-            const label = (n.label || '').toLowerCase();
-            const username = (n.username || '').toLowerCase();
-            const fingerprint = (n.fingerprint || '').toLowerCase();
-            const address = (n.address || '').toLowerCase();
-            const name = (n.name || '').toLowerCase();
-            return label.includes(query) || username.includes(query) ||
-                   fingerprint.includes(query) || address.includes(query) ||
-                   name.includes(query);
+        activeCommunityId = null;
+        activePathEntities = null;
+
+        const matchIds = new Set();
+        fullGraphData.nodes.forEach(n => {
+            const handleMatch = n.handle && n.handle.toLowerCase().includes(query);
+            const idMatch = n.id && n.id.toLowerCase().includes(query);
+            const pgpMatch = n.pgp_fingerprint && n.pgp_fingerprint.toLowerCase().includes(query);
+            const walletMatch = n.wallet_address && n.wallet_address.toLowerCase().includes(query);
+            const marketMatch = n.active_marketplaces && n.active_marketplaces.some(m => m.toLowerCase().includes(query));
+
+            if (handleMatch || idMatch || pgpMatch || walletMatch || marketMatch) {
+                matchIds.add(n.id);
+            }
         });
 
-        if (matches.length > 0) {
-            const matchIds = new Set(matches.map(m => m.id));
+        nodeGroup.selectAll('.node-circle')
+            .attr('opacity', d => matchIds.has(d.id) ? 1 : 0.08)
+            .attr('stroke-width', d => matchIds.has(d.id) ? 3 : 1.5);
 
-            nodeGroup.selectAll('.node-circle')
-                .attr('opacity', d => matchIds.has(d.id) ? 1 : 0.1);
-            labelGroup.selectAll('.node-label')
-                .attr('opacity', d => matchIds.has(d.id) ? 1 : 0.05);
+        linkGroup.selectAll('.link-line')
+            .attr('opacity', d => {
+                const s = typeof d.source === 'object' ? d.source.id : d.source;
+                const t = typeof d.target === 'object' ? d.target.id : d.target;
+                return (matchIds.has(s) || matchIds.has(t)) ? 0.8 : 0.02;
+            });
 
-            // Auto-select first match
-            if (matches.length === 1) {
-                selectNode(matches[0]);
-            }
-        }
-    }, 200));
+        labelGroup.selectAll('.node-label')
+            .attr('opacity', d => matchIds.has(d.id) ? 1 : 0.05);
+    });
 
-    // Keyboard shortcut: Cmd/Ctrl + K to focus search
     document.addEventListener('keydown', (e) => {
-        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-            e.preventDefault();
-            input.focus();
-        }
         if (e.key === 'Escape') {
-            input.blur();
             input.value = '';
             resetHighlight();
             deselectNode();
@@ -705,160 +639,75 @@ function initSearch() {
     });
 }
 
-function searchAndSelect(handleName) {
-    const node = graphData.nodes.find(n => n.username === handleName);
-    if (node) {
-        selectNode(node);
-
-        // Center on the node
-        const container = document.getElementById('graph-container');
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-
-        svg.transition().duration(500)
-            .call(zoom.transform,
-                d3.zoomIdentity
-                    .translate(width / 2, height / 2)
-                    .scale(1.5)
-                    .translate(-node.x, -node.y)
-            );
-    }
-}
-
 // ---------------------------------------------------------------------------
-// Controls
+// Controls & Export
 // ---------------------------------------------------------------------------
 
 function initControls() {
-    document.getElementById('btn-zoom-in').addEventListener('click', () => {
-        svg.transition().duration(300).call(zoom.scaleBy, 1.4);
+    document.getElementById('btn-zoom-in')?.addEventListener('click', () => {
+        svg.transition().duration(300).call(zoom.scaleBy, 1.3);
     });
 
-    document.getElementById('btn-zoom-out').addEventListener('click', () => {
-        svg.transition().duration(300).call(zoom.scaleBy, 0.7);
+    document.getElementById('btn-zoom-out')?.addEventListener('click', () => {
+        svg.transition().duration(300).call(zoom.scaleBy, 0.75);
     });
 
-    document.getElementById('btn-fit').addEventListener('click', () => {
-        const container = document.getElementById('graph-container');
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-        svg.transition().duration(500)
-            .call(zoom.transform, d3.zoomIdentity
-                .translate(width / 2, height / 2)
-                .scale(0.8)
-                .translate(-width / 2, -height / 2)
-            );
+    document.getElementById('btn-fit')?.addEventListener('click', () => {
+        svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
     });
 
-    document.getElementById('btn-reset-view').addEventListener('click', () => {
-        clearClusterHighlight();
+    document.getElementById('btn-reset-view')?.addEventListener('click', () => {
+        activeCommunityId = null;
+        activePathEntities = null;
+        document.querySelectorAll('.cluster-card').forEach(c => c.classList.remove('active'));
+        resetHighlight();
         deselectNode();
-        const container = document.getElementById('graph-container');
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-        svg.transition().duration(500)
-            .call(zoom.transform, d3.zoomIdentity);
+        svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
+        showToast('Graph view reset', 'info');
     });
 }
-
-// ---------------------------------------------------------------------------
-// Export
-// ---------------------------------------------------------------------------
 
 function initExport() {
-    document.getElementById('btn-export-json').addEventListener('click', async () => {
-        try {
-            const res = await fetch(`${API_BASE}/api/export`);
-            const data = await res.json();
-            downloadJSON(data, 'graph_signal_export.json');
-            showToast('JSON export downloaded', 'success');
-        } catch (err) {
-            showToast('Export failed', 'error');
-        }
+    document.getElementById('btn-export-json')?.addEventListener('click', () => {
+        window.open(`${API_BASE}/api/graph`, '_blank');
     });
 
-    document.getElementById('btn-export-csv').addEventListener('click', async () => {
-        try {
-            const clusters = clusterData.clusters;
-            let csv = 'Cluster ID,Handle A,Handle B,Confidence,Evidence\n';
-            clusters.forEach(c => {
-                for (let i = 0; i < c.handles.length; i++) {
-                    for (let j = i + 1; j < c.handles.length; j++) {
-                        const evidence = (c.evidence || []).map(e => e.signal).join('; ');
-                        csv += `${c.cluster_id},${c.handles[i]},${c.handles[j]},${c.confidence},"${evidence}"\n`;
-                    }
-                }
-            });
-            downloadCSV(csv, 'identity_clusters.csv');
-            showToast('CSV export downloaded', 'success');
-        } catch (err) {
-            showToast('Export failed', 'error');
-        }
+    document.getElementById('btn-export-csv')?.addEventListener('click', () => {
+        const rows = [
+            ['entity_id', 'handle', 'active_marketplaces', 'pgp_fingerprint', 'wallet_address', 'community_id']
+        ];
+        fullGraphData.nodes.forEach(n => {
+            rows.push([
+                n.id,
+                n.handle || '',
+                (n.active_marketplaces || []).join('; '),
+                n.pgp_fingerprint || '',
+                n.wallet_address || '',
+                n.community ?? 0
+            ]);
+        });
+        const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(e => e.map(i => `"${i}"`).join(',')).join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', 'entity_graph_nodes.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('CSV exported', 'success');
     });
 }
 
-function downloadJSON(data, filename) {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-}
-
-function downloadCSV(csv, filename) {
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-}
-
-// ---------------------------------------------------------------------------
-// Toast Notifications
-// ---------------------------------------------------------------------------
-
-function showToast(message, type = 'success') {
+function showToast(message, type = 'info') {
     const container = document.getElementById('toast-container');
+    if (!container) return;
+
     const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
+    toast.className = `toast toast-${type}`;
     toast.textContent = message;
     container.appendChild(toast);
 
     setTimeout(() => {
-        toast.style.animation = 'toast-out 0.3s ease-in forwards';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
-
-// ---------------------------------------------------------------------------
-// Utilities
-// ---------------------------------------------------------------------------
-
-function formatDate(dateStr) {
-    if (!dateStr) return '—';
-    try {
-        const d = new Date(dateStr);
-        return d.toLocaleDateString('en-US', {
-            year: 'numeric', month: 'short', day: 'numeric'
-        });
-    } catch {
-        return dateStr;
-    }
-}
-
-function truncate(str, len) {
-    if (!str) return '—';
-    return str.length > len ? str.substring(0, len) + '…' : str;
-}
-
-function debounce(fn, ms) {
-    let timeout;
-    return (...args) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => fn(...args), ms);
-    };
+        toast.remove();
+    }, 3500);
 }

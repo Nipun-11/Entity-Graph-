@@ -192,6 +192,7 @@ def _serve_dashboard(engine, trav, output_path):
         return jsonify(matches[:20])
 
     @app.route("/api/communities")
+    @app.route("/api/clusters")
     def api_communities():
         """Get community detection results."""
         communities = trav.detect_communities()

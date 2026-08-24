@@ -12,6 +12,7 @@ Runs the validation checks from ANTIGRAVITY_BUILD_SPEC.md §5:
 
 import sys
 import pandas as pd
+import networkx as nx
 from pathlib import Path
 
 if sys.platform == "win32":
@@ -190,8 +191,6 @@ def run_validation(engine, traversal):
     # ------------------------------------------------------------------
     # Summary
     # ------------------------------------------------------------------
-    import networkx as nx
-
     print(f"\n{'='*60}")
     print(f"VALIDATION RESULTS: {passed} passed, {failed} failed")
     print(f"{'='*60}")
@@ -208,7 +207,6 @@ def run_validation(engine, traversal):
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    import networkx as nx
     from graph_engine import EntityGraph
     from traversal import GraphTraversal
 
