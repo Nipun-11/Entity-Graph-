@@ -5,6 +5,8 @@ Finds connections between canonical entities via multi-hop paths,
 computes path_confidence and graph_link_strength scores.
 
 Per ANTIGRAVITY_BUILD_SPEC.md §4.2:
+  - Traverses the directed MultiDiGraph: VOUCHED_FOR is directional (A -> B),
+    while CO_OCCURRED_IN_THREAD and TRANSACTED_WITH are symmetric (bidirectional).
   - path_confidence: multiply confidence_weight along each edge in a path
   - graph_link_strength: combine path count + strongest path confidence
   - Supports up to N=3 hop traversals (deeper paths get noisy)
@@ -33,6 +35,7 @@ class GraphTraversal:
             graph: The MultiDiGraph from EntityGraph.get_graph()
         """
         self.graph = graph
+        # Undirected view used strictly for community detection and component reachability checks
         self._undirected = graph.to_undirected()
 
     # ------------------------------------------------------------------
@@ -47,6 +50,7 @@ class GraphTraversal:
     ) -> Dict[str, Any]:
         """
         Find the shortest path and all simple paths between two entities.
+        Queries the directed MultiDiGraph to enforce VOUCHED_FOR directionality.
 
         Returns dict with:
           - connected: bool
@@ -70,9 +74,9 @@ class GraphTraversal:
                 "evidence_path": [],
             }
 
-        # Check connectivity on undirected view (since some edges are directional)
+        # Check connectivity on directed MultiDiGraph (respecting edge directionality)
         try:
-            if not nx.has_path(self._undirected, source, target):
+            if not nx.has_path(self.graph, source, target):
                 return {
                     "entity_id_a": source,
                     "entity_id_b": target,
@@ -97,9 +101,9 @@ class GraphTraversal:
                 "evidence_path": [],
             }
 
-        # Find shortest path (on undirected view for reachability)
+        # Find shortest path on directed MultiDiGraph
         try:
-            shortest = nx.shortest_path(self._undirected, source, target)
+            shortest = nx.shortest_path(self.graph, source, target)
         except nx.NetworkXNoPath:
             return {
                 "entity_id_a": source,
@@ -117,10 +121,10 @@ class GraphTraversal:
         sp_confidence = self.path_confidence(shortest)
         evidence = self._build_evidence_path(shortest)
 
-        # Find all simple paths (capped at cutoff)
+        # Find all simple paths (capped at cutoff, using directed MultiDiGraph)
         try:
             all_paths = list(nx.all_simple_paths(
-                self._undirected, source, target, cutoff=cutoff
+                self.graph, source, target, cutoff=cutoff
             ))
         except nx.NetworkXError:
             all_paths = [shortest]
@@ -175,7 +179,7 @@ class GraphTraversal:
         """
         try:
             all_paths = list(nx.all_simple_paths(
-                self._undirected, source, target, cutoff=cutoff
+                self.graph, source, target, cutoff=cutoff
             ))
         except (nx.NetworkXError, nx.NodeNotFound):
             return 0.0
@@ -211,6 +215,7 @@ class GraphTraversal:
     ) -> List[Dict[str, Any]]:
         """
         Find all entities reachable from entity_id within max_hops.
+        Traverses directed successors in self.graph to respect VOUCHED_FOR directionality.
 
         Returns list of dicts with entity_id, distance, path_confidence.
         """
@@ -220,20 +225,20 @@ class GraphTraversal:
         connections = []
         visited = {entity_id}
 
-        # BFS up to max_hops
+        # BFS up to max_hops using directed graph successors
         current_layer = {entity_id}
         for hop in range(1, max_hops + 1):
             next_layer = set()
             for node in current_layer:
-                for neighbor in self._undirected.neighbors(node):
+                for neighbor in self.graph.successors(node):
                     if neighbor not in visited:
                         visited.add(neighbor)
                         next_layer.add(neighbor)
 
-                        # Get path confidence
+                        # Get path confidence along directed path
                         try:
                             path = nx.shortest_path(
-                                self._undirected, entity_id, neighbor
+                                self.graph, entity_id, neighbor
                             )
                             conf = self.path_confidence(path)
                         except nx.NetworkXNoPath:
@@ -253,7 +258,7 @@ class GraphTraversal:
     def get_connected_component(self, entity_id: str) -> set:
         """
         Get all entities in the same connected component as entity_id.
-        Uses undirected view.
+        Uses undirected view for component membership.
         """
         if entity_id not in self._undirected:
             return set()
@@ -266,6 +271,7 @@ class GraphTraversal:
     def detect_communities(self) -> List[set]:
         """
         Run Louvain community detection on the entity graph.
+        Uses undirected view for community partitioning.
 
         Returns list of sets, each set = community of entity_ids.
         """
@@ -285,21 +291,12 @@ class GraphTraversal:
 
     def _best_edge_confidence(self, u: str, v: str) -> float:
         """
-        Get the highest confidence across all parallel edges between u and v.
-        Checks both directions since we're working with undirected paths.
+        Get the highest confidence across all parallel edges from u to v.
         """
         best = 0.0
 
-        # Check u -> v
         if self.graph.has_edge(u, v):
             for key, data in self.graph[u][v].items():
-                conf = data.get("confidence", 0.0)
-                if conf > best:
-                    best = conf
-
-        # Check v -> u (for directed edges)
-        if self.graph.has_edge(v, u):
-            for key, data in self.graph[v][u].items():
                 conf = data.get("confidence", 0.0)
                 if conf > best:
                     best = conf
@@ -321,14 +318,13 @@ class GraphTraversal:
         return evidence
 
     def _get_best_edge_data(self, u: str, v: str) -> dict:
-        """Get the edge data for the highest-confidence edge between u and v."""
+        """Get the edge data for the highest-confidence edge from u to v."""
         best = {"confidence": 0.0}
 
-        for src, tgt in [(u, v), (v, u)]:
-            if self.graph.has_edge(src, tgt):
-                for key, data in self.graph[src][tgt].items():
-                    if data.get("confidence", 0.0) > best["confidence"]:
-                        best = dict(data)
+        if self.graph.has_edge(u, v):
+            for key, data in self.graph[u][v].items():
+                if data.get("confidence", 0.0) > best["confidence"]:
+                    best = dict(data)
 
         return best
 
