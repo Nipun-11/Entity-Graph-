@@ -107,9 +107,60 @@ def fake_wallet_address(seller: str) -> str:
     return addr[:34]
 
 
-def generate_persona_id() -> str:
-    """Generate a unique persona_id."""
-    return f"P-{uuid.uuid4().hex[:12]}"
+def generate_persona_id(seller: str = None, mkt: str = None) -> str:
+    """Generate a deterministic persona_id if not present in master_personas.json."""
+    if seller is not None and mkt is not None:
+        h = hashlib.sha256(f"persona_{seller}_{mkt}_{SEED}".encode()).hexdigest()
+        return f"P-{h[:8]}"
+    return f"P-{uuid.uuid4().hex[:8]}"
+
+
+def load_master_personas(path: str = None) -> dict:
+    """
+    Load master_personas.json mapping (seller/handle, marketplace) -> persona_id.
+    Supports list of persona dicts or dict mapping.
+    """
+    candidates = []
+    if path:
+        candidates.append(Path(path))
+    candidates.extend([
+        OUT_DIR / "master_personas.json",
+        Path(__file__).parent / "master_personas.json",
+        Path("data/master_personas.json"),
+        Path("master_personas.json")
+    ])
+
+    for p in candidates:
+        if p and p.exists():
+            print(f"[*] Found master_personas.json at: {p.resolve()}")
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+
+                persona_map = {}
+                if isinstance(data, list):
+                    for item in data:
+                        if isinstance(item, dict):
+                            pid = item.get("persona_id")
+                            h = item.get("handle") or item.get("seller") or item.get("real_handle")
+                            m = item.get("marketplace") or item.get("source") or item.get("market")
+                            if pid and h and m:
+                                persona_map[(str(h), str(m))] = str(pid)
+                                persona_map[(str(h).lower(), str(m).lower())] = str(pid)
+                elif isinstance(data, dict):
+                    for k, v in data.items():
+                        if isinstance(v, dict):
+                            pid = v.get("persona_id", k)
+                            h = v.get("handle") or v.get("seller")
+                            m = v.get("marketplace") or v.get("source")
+                            if pid and h and m:
+                                persona_map[(str(h), str(m))] = str(pid)
+                                persona_map[(str(h).lower(), str(m).lower())] = str(pid)
+                print(f"    Loaded {len(persona_map)} (handle, market) -> persona_id mappings from master source")
+                return persona_map
+            except Exception as e:
+                print(f"    [!] Warning: Failed reading master_personas.json: {e}")
+    return {}
 
 
 # ---------------------------------------------------------------------------
@@ -237,15 +288,21 @@ def expand_with_synthetic_markets(
 def build_nodes(
     selected: dict,
     df: pd.DataFrame,
-) -> list:
+    master_personas_map: dict = None,
+) -> tuple:
     """
     Build the nodes table: one row per (seller, marketplace) pair.
+    
+    PRESERVES the original persona_id from master_personas.json for each record
+    if available. The handle field remains strictly anonymized (fake placeholder names).
 
     Returns list of dicts with columns:
       persona_id, handle, marketplace, pgp_fingerprint, wallet_address,
       first_seen_date, last_seen_date
     """
     print("\n[*] Building nodes...")
+    if master_personas_map is None:
+        master_personas_map = {}
 
     # Pre-compute anonymized handles
     handle_map = {}
@@ -259,13 +316,28 @@ def build_nodes(
         handle_map[seller] = anon
 
     nodes = []
+    preserved_count = 0
+    generated_count = 0
+
     for seller, marketplaces in selected.items():
         anon_handle = handle_map[seller]
         pgp = fake_pgp_fingerprint(seller)
         wallet = fake_wallet_address(seller)
 
         for mkt in marketplaces:
-            pid = generate_persona_id()
+            # 1. Lookup in master_personas_map by real seller name or anon handle
+            pid = (
+                master_personas_map.get((seller, mkt)) or
+                master_personas_map.get((seller.lower(), mkt.lower())) or
+                master_personas_map.get((anon_handle, mkt)) or
+                master_personas_map.get((anon_handle.lower(), mkt.lower()))
+            )
+            
+            if pid:
+                preserved_count += 1
+            else:
+                pid = generate_persona_id(seller, mkt)
+                generated_count += 1
 
             # Try to get real date range from listings data
             seller_mkt_rows = df[(df["seller"] == seller) & (df["source"] == mkt)]
@@ -289,6 +361,8 @@ def build_nodes(
             })
 
     print(f"    {len(nodes)} persona records created")
+    if master_personas_map:
+        print(f"    {preserved_count} persona_ids preserved from master_personas.json ({generated_count} generated)")
     print(f"    {len(handle_map)} unique handles")
     unique_mkts = set(n["marketplace"] for n in nodes)
     print(f"    {len(unique_mkts)} marketplaces: {sorted(unique_mkts)}")
@@ -507,11 +581,16 @@ def main():
                         help="Target total persona records (default: 1833)")
     parser.add_argument("--csv", type=str, default="real_darknet_listings.csv",
                         help="Path to raw listings CSV")
+    parser.add_argument("--master_personas", type=str, default=None,
+                        help="Path to master_personas.json to preserve original persona_ids")
     args = parser.parse_args()
 
     # Load raw data
     df = load_raw_data(args.csv)
     real_marketplaces = sorted(df["source"].unique())
+
+    # Load master personas map if available
+    master_personas_map = load_master_personas(args.master_personas)
 
     # Select sellers
     selected = select_sellers(df, n_handles=args.n_handles)
@@ -523,8 +602,8 @@ def main():
         real_marketplaces=real_marketplaces,
     )
 
-    # Build nodes
-    nodes, handle_map = build_nodes(selected, df)
+    # Build nodes (preserving original persona_ids from master_personas.json)
+    nodes, handle_map = build_nodes(selected, df, master_personas_map=master_personas_map)
 
     # Build edges
     edges = build_edges(nodes, handle_map)
