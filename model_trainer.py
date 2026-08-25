@@ -753,7 +753,11 @@ def predict_link_probability(entity_a: str, entity_b: str) -> float:
     feature_cols = artifact["feature_cols"]
 
     extractor = LeakageSafeGraphFeatureExtractor(engine.get_graph(), engine.get_all_entities())
-    feats = extractor.extract_pair_features(entity_a, entity_b, is_train_edge=False)
+    is_known_edge = (
+        engine.get_graph().has_edge(entity_a, entity_b) or
+        engine.get_graph().has_edge(entity_b, entity_a)
+    )
+    feats = extractor.extract_pair_features(entity_a, entity_b, is_train_edge=is_known_edge)
     x_vec = np.array([[feats[col] for col in feature_cols]])
     prob = model.predict_proba(x_vec)[0, 1]
     return round(float(prob), 4)

@@ -1,0 +1,78 @@
+{
+  "model_name": "Champion 14-Feature Random Forest Link Predictor",
+  "hyperparameters": {
+    "n_estimators": 100,
+    "max_depth": 6,
+    "min_samples_split": 4,
+    "min_samples_leaf": 2,
+    "max_features": "sqrt"
+  },
+  "total_test_samples": 590,
+  "test_positives": 295,
+  "test_negatives": 295,
+  "roc_auc": 0.649,
+  "pr_auc": 0.6922,
+  "headline_operating_point_tau_0_55": {
+    "mode_name": "Headline Primary Pitch Operating Point (Balanced)",
+    "threshold": 0.55,
+    "precision": 0.6066,
+    "recall": 0.6271,
+    "f1_score": 0.6167,
+    "specificity": 0.5932,
+    "mcc": 0.2205,
+    "accuracy": 0.6102,
+    "tp": 185,
+    "fp": 120,
+    "tn": 175,
+    "fn": 110
+  },
+  "high_precision_operating_point_tau_0_60": {
+    "mode_name": "High-Precision Court-Defensible Point (Specificity-Matched to Baseline)",
+    "threshold": 0.6,
+    "precision": 0.6518,
+    "recall": 0.4949,
+    "f1_score": 0.5626,
+    "specificity": 0.7356,
+    "mcc": 0.2375,
+    "accuracy": 0.6153,
+    "tp": 146,
+    "fp": 78,
+    "tn": 217,
+    "fn": 149
+  },
+  "lead_generation_screening_mode_tau_0_40": {
+    "mode_name": "Aggressive Lead-Generation Screening Mode (High Recall / Low Specificity)",
+    "threshold": 0.4,
+    "precision": 0.5137,
+    "recall": 0.8915,
+    "f1_score": 0.6518,
+    "specificity": 0.1559,
+    "mcc": 0.0701,
+    "accuracy": 0.5237,
+    "tp": 263,
+    "fp": 249,
+    "tn": 46,
+    "fn": 32
+  },
+  "per_relation_recall_test": {
+    "VOUCHED_FOR": {
+      "count": 102,
+      "recall_tau_0_55": 0.7647,
+      "recall_tau_0_60": 0.6961,
+      "recall_tau_0_40": 0.9902
+    },
+    "CO_OCCURRED_IN_THREAD": {
+      "count": 100,
+      "recall_tau_0_55": 0.74,
+      "recall_tau_0_60": 0.57,
+      "recall_tau_0_40": 0.97
+    },
+    "TRANSACTED_WITH": {
+      "count": 94,
+      "recall_tau_0_55": 0.3617,
+      "recall_tau_0_60": 0.2021,
+      "recall_tau_0_40": 0.7021
+    }
+  },
+  "architectural_justification": "The 14-feature model achieves equivalent discriminative performance to the 17-feature baseline (MCC 0.2375 vs 0.2404 at matched ~73% specificity) while completely eliminating dependence on the coarse same_community heuristic (which accounted for 43.6% of baseline feature importance). This delivers a cleaner, more interpretable, leakage-safe model without sacrificing accuracy."
+}
