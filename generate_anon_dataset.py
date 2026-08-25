@@ -46,6 +46,7 @@ OUT_DIR.mkdir(exist_ok=True)
 
 NODES_PATH = OUT_DIR / "module2_entity_graph_nodes_ANON.csv"
 EDGES_PATH = OUT_DIR / "module2_entity_graph_edges_ANON.csv"
+CANONICAL_HANDLES_PATH = Path(__file__).parent / "handle_mapping_CANONICAL.csv"
 
 # ---------------------------------------------------------------------------
 # Handle anonymization vocabulary
@@ -161,6 +162,66 @@ def load_master_personas(path: str = None) -> dict:
             except Exception as e:
                 print(f"    [!] Warning: Failed reading master_personas.json: {e}")
     return {}
+
+
+def load_and_sync_canonical_handle_mapping(
+    selected_sellers: list,
+    canonical_path: Path = None,
+) -> dict:
+    """
+    Load handle_mapping_CANONICAL.csv to ensure handles are 100% frozen.
+    
+    Reuses existing fake_handle values for each real_handle. If a real_handle
+    is missing from the file, generates a new fake_handle in the standard style
+    and appends it to handle_mapping_CANONICAL.csv without overwriting existing entries.
+    """
+    target_file = Path(canonical_path) if canonical_path else CANONICAL_HANDLES_PATH
+    if not target_file.exists():
+        alt = OUT_DIR / "handle_mapping_CANONICAL.csv"
+        if alt.exists():
+            target_file = alt
+
+    handle_map = {}
+    file_exists = target_file.exists()
+
+    if file_exists:
+        try:
+            df_map = pd.read_csv(target_file)
+            if "real_handle" in df_map.columns and "fake_handle" in df_map.columns:
+                for _, row in df_map.iterrows():
+                    r = str(row["real_handle"]).strip()
+                    f = str(row["fake_handle"]).strip()
+                    if r and f and r != "nan" and f != "nan":
+                        handle_map[r] = f
+            print(f"[*] Loaded {len(handle_map)} canonical handles from {target_file.resolve()}")
+        except Exception as e:
+            print(f"    [!] Warning: Error reading {target_file}: {e}")
+
+    used_handles = set(handle_map.values())
+    new_entries = []
+
+    for i, seller in enumerate(sorted(selected_sellers)):
+        if seller in handle_map:
+            continue
+
+        # Generate deterministic fallback fake handle
+        anon = anonymize_handle(seller, i)
+        while anon in used_handles:
+            anon = anon + str(random.randint(0, 9))
+        used_handles.add(anon)
+        handle_map[seller] = anon
+        new_entries.append({"real_handle": seller, "fake_handle": anon})
+
+    if new_entries:
+        print(f"[*] Appending {len(new_entries)} new handle mapping(s) to {target_file.resolve()}...")
+        write_header = (not file_exists) or (target_file.stat().st_size == 0)
+        with open(target_file, "a", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=["real_handle", "fake_handle"])
+            if write_header:
+                writer.writeheader()
+            writer.writerows(new_entries)
+
+    return handle_map
 
 
 # ---------------------------------------------------------------------------
@@ -289,12 +350,13 @@ def build_nodes(
     selected: dict,
     df: pd.DataFrame,
     master_personas_map: dict = None,
+    canonical_handles_path: Path = None,
 ) -> tuple:
     """
     Build the nodes table: one row per (seller, marketplace) pair.
     
-    PRESERVES the original persona_id from master_personas.json for each record
-    if available. The handle field remains strictly anonymized (fake placeholder names).
+    PRESERVES the original persona_id from master_personas.json and
+    re-uses frozen handle mappings from handle_mapping_CANONICAL.csv.
 
     Returns list of dicts with columns:
       persona_id, handle, marketplace, pgp_fingerprint, wallet_address,
@@ -304,16 +366,10 @@ def build_nodes(
     if master_personas_map is None:
         master_personas_map = {}
 
-    # Pre-compute anonymized handles
-    handle_map = {}
-    used_handles = set()
-    for i, seller in enumerate(sorted(selected.keys())):
-        anon = anonymize_handle(seller, i)
-        # Handle collision (rare but possible)
-        while anon in used_handles:
-            anon = anon + str(random.randint(0, 9))
-        used_handles.add(anon)
-        handle_map[seller] = anon
+    # Load and sync handle mapping from handle_mapping_CANONICAL.csv
+    handle_map = load_and_sync_canonical_handle_mapping(
+        list(selected.keys()), canonical_handles_path
+    )
 
     nodes = []
     preserved_count = 0
@@ -583,6 +639,8 @@ def main():
                         help="Path to raw listings CSV")
     parser.add_argument("--master_personas", type=str, default=None,
                         help="Path to master_personas.json to preserve original persona_ids")
+    parser.add_argument("--canonical_handles", type=str, default=None,
+                        help="Path to handle_mapping_CANONICAL.csv to freeze handle names")
     args = parser.parse_args()
 
     # Load raw data
@@ -602,8 +660,13 @@ def main():
         real_marketplaces=real_marketplaces,
     )
 
-    # Build nodes (preserving original persona_ids from master_personas.json)
-    nodes, handle_map = build_nodes(selected, df, master_personas_map=master_personas_map)
+    # Build nodes (preserving original persona_ids and canonical handle mapping)
+    nodes, handle_map = build_nodes(
+        selected,
+        df,
+        master_personas_map=master_personas_map,
+        canonical_handles_path=args.canonical_handles,
+    )
 
     # Build edges
     edges = build_edges(nodes, handle_map)
