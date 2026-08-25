@@ -10,8 +10,10 @@ venv/
 # Large raw data (not tracked — too large for GitHub)
 real_darknet_listings.csv
 
-# Debug files
+# Debug and raw mapping files (not tracked)
 data/_handle_mapping_DEBUG.json
+handle_mapping_CANONICAL.csv
+data/handle_mapping_CANONICAL.csv
 
 # Generated output (can be regenerated)
 data/entity_graph_output.json
